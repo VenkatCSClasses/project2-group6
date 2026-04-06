@@ -20,3 +20,5 @@ Our web app provides an independent, bespoke way for journalists to do their bes
 ## Use Case Diagram
 [Visit the Mermaid Diagram here](https://mermaid.ink/img/pako:eNptUktOwzAUvIr1Vq6UlsTNx82CTUFsioQACQnCwk0eTdQ6jpwEEaoeghOw4YAcASdRU6R0Zb8Zz7yx_fYQqwQhhI0WRUpW91FOiIgrpR36EsHv99cPedJZhTqC18lAsoG8TjJT92RLl_W6t3poygplDxISK1lQulSFVCVOJke40iLeUvrYLuRB1TrG8sQW9ZrSu3q9y0rjZ9o0Jy5OsVUu28VwzQ4vbrSQUujTGTTZKF2heMcu52CNedJv-puS6fSySzgCu3wj1OQay9sg_1B2Vs_O6HuszToCO1OwzOdkCYSVrtECiVqKtoR9ezqCKkWJEYRmmwi9jSDKD0ZTiPxZKXmUaVVvUgjfxK40VV0kosKrTJi_kgOqzbugXqo6ryAMfLszgXAPHxAyx59x13ED2-U-9x3OLWgg9PjM9ZkbuJzNuTNnrnew4LPra884Y9z1Ai-w7cBb8IUF2E3LbT9y3eQd_gAcusvy?type=png)
 
+<img width="300" height="800" alt="Project2-Group6-Diagram" src="https://github.com/user-attachments/assets/e51b1dac-09a9-43d1-975e-07527e1ec1f2" />
+
