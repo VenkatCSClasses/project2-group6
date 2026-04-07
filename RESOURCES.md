@@ -20,4 +20,4 @@
 5. Source/link tracker
 6. Quote tracker
 7. Browser integration for searching
-8. 
+8. Publish to WordPress
