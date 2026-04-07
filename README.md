@@ -1,6 +1,10 @@
 # project2-group6
 Ray, Faith, Suryash, and George
 
+# Sprint plan
+https://docs.google.com/document/d/1ovA4SQM1nDByxMvQ0C5xEs1JmpQgkh4uJZZ-DU14AzU/edit?usp=sharing
+
+
 ## Pitch
 ### Overview
 Our project is a writing environment designed to bring bespoke features to a journalist and their editor. Rather than adapting basic word processors to fit their needs, newsrooms can use this web app to compose stories, keep track of sources across stories, organize quotes and media, and conduct grammar/style checks on their story.
