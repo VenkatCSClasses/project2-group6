@@ -2,8 +2,8 @@ import { type YooptaContentValue } from '@yoopta/editor';
 import Paragraph from '@yoopta/paragraph';
 import Headings from '@yoopta/headings';
 import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
-import { useMemo, useState, useRef } from 'react';
-import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor } from '@yoopta/editor';
+import { useMemo, useState, useRef, useEffect } from 'react';
+import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
 import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu } from '@yoopta/ui';
 
 const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
@@ -75,6 +75,31 @@ export default function Editor() {
       }),
     [],
   );
+
+  // Populate a sample document on first render so features are visible
+  useEffect(() => {
+    try {
+      const current = editor.getEditorValue();
+      if (!current || Object.keys(current).length === 0) {
+        const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] });
+        const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] });
+        const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] });
+        const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] });
+
+        const initial = {};
+        initial[heading.id] = heading;
+        initial[para1.id] = para1;
+        initial[para2.id] = para2;
+        initial[para3.id] = para3;
+
+        editor.setEditorValue(initial);
+        editor.setPath({ current: 0 });
+      }
+    } catch (e) {
+      // ignore initialization errors; editor will remain interactive
+      console.error('Yoopta init error', e);
+    }
+  }, [editor]);
 
   return (
     <YooptaEditor
