@@ -21,6 +21,10 @@ Our project is a writing environment designed to bring bespoke features to a jou
 ### Benefits
 Our web app provides an independent, bespoke way for journalists to do their best work. Screenwriters and playwrights have Final Draft — journalists could use our platform. It can be tailored to fit the unique style of a certain newsroom (e.g. *The Ithacan* has a unique set of grammatical rules) and can be used to report on a subject across multiple stories with the same sources.
 
+## Class Diagram
+[![Class Diagram](ClassDiagram.png)]
+
+
 ## Use Case Diagram
 [Visit the Mermaid Diagram here](https://mermaid.ink/img/pako:eNptUktOwzAUvIr1Vq6UlsTNx82CTUFsioQACQnCwk0eTdQ6jpwEEaoeghOw4YAcASdRU6R0Zb8Zz7yx_fYQqwQhhI0WRUpW91FOiIgrpR36EsHv99cPedJZhTqC18lAsoG8TjJT92RLl_W6t3poygplDxISK1lQulSFVCVOJke40iLeUvrYLuRB1TrG8sQW9ZrSu3q9y0rjZ9o0Jy5OsVUu28VwzQ4vbrSQUujTGTTZKF2heMcu52CNedJv-puS6fSySzgCu3wj1OQay9sg_1B2Vs_O6HuszToCO1OwzOdkCYSVrtECiVqKtoR9ezqCKkWJEYRmmwi9jSDKD0ZTiPxZKXmUaVVvUgjfxK40VV0kosKrTJi_kgOqzbugXqo6ryAMfLszgXAPHxAyx59x13ED2-U-9x3OLWgg9PjM9ZkbuJzNuTNnrnew4LPra884Y9z1Ai-w7cBb8IUF2E3LbT9y3eQd_gAcusvy?type=png)
 
