@@ -26,3 +26,6 @@ Our web app provides an independent, bespoke way for journalists to do their bes
 
 <img width="300" height="800" alt="Project2-Group6-Diagram" src="https://github.com/user-attachments/assets/e51b1dac-09a9-43d1-975e-07527e1ec1f2" />
 
+## Sequence Diagram
+<img width="5370" height="5140" alt="Writer to Website-2026-04-09-144210" src="https://github.com/user-attachments/assets/16055f12-e93e-4e28-be79-755bbb224c46" />
+
