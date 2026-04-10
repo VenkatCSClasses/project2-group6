@@ -1,0 +1,2 @@
+# Ignore dependency installs in word-processor
+word-processor/node_modules/
