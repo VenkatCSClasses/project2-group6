@@ -1,7 +1,13 @@
 
 import { useState,type KeyboardEvent } from 'react';
 
-export default function SearchSidebar() {
+//An interface that recieves the onlink pasted funcion from the parent
+
+interface SidebarProps {
+    onLinkPasted: (data: { url: string;}) => void;
+}
+//Add the interface to the function parameters
+export default function SearchSidebar({ onLinkPasted }: SidebarProps) {
   const [url, setUrl] = useState('https://en.wikipedia.org/wiki/Main_Page');
   const [inputValue, setInputValue] = useState('');
 
@@ -9,12 +15,20 @@ export default function SearchSidebar() {
     if (e.key === 'Enter') {
       const entry = inputValue.trim();
       if (!entry) return;
-
+      
+    
       // Logic: If it has a dot and no spaces, treat it as a link
       const isLink = /^[^\s]+\.[^\s]+$/.test(entry);
 
       if (isLink) {
-        const finalUrl = entry.startsWith('http') ? entry : `https://${entry}`;
+       const finalUrl = entry.startsWith('http') ? entry : `https://${entry}`;
+
+
+       //Send the structured data to the Layout for the Sources list
+        onLinkPasted({
+          url: finalUrl,
+        });
+
         setUrl(finalUrl);
       } else {
         // Otherwise, it's a search term
@@ -32,10 +46,11 @@ export default function SearchSidebar() {
           <input
             type="text"
             className="modern-search-input"
-            placeholder="Search or paste link..."
+            placeholder="Paste link and press Enter..."
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleSearch}
+            
           />
         </div>
       </div>

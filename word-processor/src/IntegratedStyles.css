@@ -16,6 +16,7 @@
  display: flex;
  flex-direction: column;
  background: var(--social-bg);
+ overflow: hidden;
 }
 
 
@@ -40,7 +41,6 @@
  align-items: center;
 }
 
-
 .search-icon {
  position: absolute;
  left: 12px;
@@ -61,12 +61,10 @@
  transition: all 0.2s ease;
 }
 
-
 .modern-search-input:focus {
  border-color: var(--accent);
  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.2);
 }
-
 
 /* The Iframe Window */
 .sidebar-flex {
@@ -88,6 +86,87 @@
  border: none;
 }
 
+/* --- NEW STYLES: Sources & MLA Citation List --- */
 
+.sources-container {
+  flex: 0 0 300px; 
+  background: var(--bg);
+  padding: 15px;
+  overflow-y: auto; /* Allows only the citation list to scroll */
+}
+
+.sources-title {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 15px;
+  letter-spacing: 0.5px;
+}
+
+.citation-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mla-text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-h);
+  padding-right: 25px; /* Room for the edit button */
+}
+
+.mla-text i {
+  font-style: italic;
+}
+
+/* Edit Pencil */
+.edit-trigger {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.edit-trigger:hover {
+  opacity: 1;
+}
+
+/*  Inline Edit Form */
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--code-bg);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.edit-form input {
+  font-size: 11px;
+  padding: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-h);
+  border-radius: 4px;
+}
+
+.save-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
 
