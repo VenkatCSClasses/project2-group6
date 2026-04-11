@@ -34,5 +34,5 @@ Our web app provides an independent, bespoke way for journalists to do their bes
 <img width="5370" height="5140" alt="Writer to Website-2026-04-09-144210" src="https://github.com/user-attachments/assets/16055f12-e93e-4e28-be79-755bbb224c46" />
 
 ## State Diagram 
-[![State Diagram](state-diagram.png)]
+![State Diagram](state-diagram.png)
 
