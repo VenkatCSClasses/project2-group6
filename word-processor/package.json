@@ -15,6 +15,7 @@
     "@yoopta/marks": "^6.0.2",
     "@yoopta/paragraph": "^6.0.2",
     "@yoopta/ui": "^6.0.2",
+    "plagiarism-checker": "^6.0.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "slate": "^0.120.0",

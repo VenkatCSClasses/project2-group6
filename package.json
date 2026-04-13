@@ -21,8 +21,8 @@
     "@yoopta/themes-shadcn": "^6.0.2",
     "@yoopta/ui": "^6.0.2",
     "@yoopta/video": "^6.0.2",
-    "slate": "^0.124.0",
-    "slate-dom": "^0.124.0",
-    "slate-react": "^0.124.0"
+    "slate": "^0.120.0",
+    "slate-dom": "^0.120.0",
+    "slate-react": "^0.120.0"
   }
 }
