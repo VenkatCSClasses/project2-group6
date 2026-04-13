@@ -4,7 +4,7 @@ import Headings from '@yoopta/headings';
 import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
 import { useMemo, useState, useRef, useEffect } from 'react';
 import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
-import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu } from '@yoopta/ui';
+import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu, useBlockActions } from '@yoopta/ui';
 
 const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
 const MARKS = [Bold, Italic, Underline, Strike, CodeMark, Highlight];
@@ -60,6 +60,7 @@ function MyFloatingBlockActions() {
   const editor = useYooptaEditor();
   const [blockOptionsOpen, setBlockOptionsOpen] = useState(false);
   const dragHandleRef = useRef<HTMLButtonElement>(null);
+  const { duplicateBlock, copyBlockLink, deleteBlock } = useBlockActions();
 
   return (
     <FloatingBlockActions frozen={blockOptionsOpen}>
@@ -83,7 +84,18 @@ function MyFloatingBlockActions() {
             open={blockOptionsOpen}
             onOpenChange={setBlockOptionsOpen}
             anchor={dragHandleRef.current}>
-            <BlockOptions.Content>{/* Block options menu items */}</BlockOptions.Content>
+            <BlockOptions.Content>
+              <BlockOptions.Group>
+                <BlockOptions.Item onSelect={() => duplicateBlock(blockId)}>Duplicate</BlockOptions.Item>
+                <BlockOptions.Item onSelect={() => copyBlockLink(blockId)}>Copy link</BlockOptions.Item>
+              </BlockOptions.Group>
+              <BlockOptions.Separator />
+              <BlockOptions.Group>
+                <BlockOptions.Item variant="destructive" onSelect={() => deleteBlock(blockId)}>
+                  Delete
+                </BlockOptions.Item>
+              </BlockOptions.Group>
+            </BlockOptions.Content>
           </BlockOptions>
         </>
       )}
@@ -127,15 +139,15 @@ export default function Editor() {
   }, [editor]);
 
   return (
-    <YooptaEditor
-      editor={editor}
-      autoFocus
-      placeholder="Type / to open menu"
-      style={{ width: 750 }}>
-      <MyToolbar />
-      <MyFloatingBlockActions />
-      <SlashCommandMenu />
-    </YooptaEditor>
+      <YooptaEditor
+        editor={editor}
+        autoFocus
+        placeholder="Type / to open menu"
+        style={{ width: 750 }}>
+        <MyToolbar />
+        <MyFloatingBlockActions />
+        <SlashCommandMenu />
+      </YooptaEditor>
   );
 }
 
