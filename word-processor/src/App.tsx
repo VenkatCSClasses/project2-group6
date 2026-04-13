@@ -20,8 +20,33 @@ function MyToolbar() {
           {editor.formats.bold && (
             <FloatingToolbar.Button
               onClick={() => Marks.toggle(editor, { type: 'bold' })}
-              active={Marks.isActive(editor, { type: 'bold' })}>
+              active={Marks.isActive(editor, { type: 'bold' })}
+              title="Bold">
               B
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.italic && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'italic' })}
+              active={Marks.isActive(editor, { type: 'italic' })}
+              title="Italic">
+              I
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.underline && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'underline' })}
+              active={Marks.isActive(editor, { type: 'underline' })}
+              title="Underline">
+              U
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.strike && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'strike' })}
+              active={Marks.isActive(editor, { type: 'strike' })}
+              title="Strike">
+              S
             </FloatingToolbar.Button>
           )}
         </FloatingToolbar.Group>
