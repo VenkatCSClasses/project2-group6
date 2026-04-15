@@ -30,7 +30,7 @@ const RegisterPage = () => {
             height: "75vh",
          }}
       >
-         <h1 style={{marginBottom: "100px", fontSize: "75px"}}>Capybara|</h1>
+         <h1 style={{marginBottom: "100px", fontSize: "75px"}}>Copybara|</h1>
 
          <input
             type="text"
