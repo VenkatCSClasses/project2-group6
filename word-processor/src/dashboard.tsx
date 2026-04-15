@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GrDocumentText } from "react-icons/gr";
 
 type Document = {
    id: string;
@@ -19,10 +20,14 @@ const Dashboard: React.FC = () => {
       const mockWriter: Document[] = [
          { id: "1", title: "My First Article", updatedAt: "2026-04-10" },
          { id: "2", title: "Interview Notes", updatedAt: "2026-04-12" },
+         { id: "3", title: "Venkat Article", updatedAt: "2026-04-14" },
+         { id: "4", title: "Another Article", updatedAt: "2026-04-15" },
+         { id: "5", title: "Old Article", updatedAt: "2026-04-01" },
       ];
 
       const mockEditor: Document[] = [
          { id: "3", title: "Breaking News Draft", updatedAt: "2026-04-11" },
+         { id: "4", title: "Tech Review Draft", updatedAt: "2026-04-13" },
       ];
 
       setWriterDocs(mockWriter);
@@ -41,7 +46,7 @@ const Dashboard: React.FC = () => {
 
    return (
       <div style={{ marginBottom: "20px" }}>
-         <h1 style={{marginBottom: "100px", fontSize: "75px"}}>Copybara|</h1>
+         <h1 style={{ marginBottom: "85px", marginTop: "50px", fontSize: "75px" }}>Copybara|</h1>
 
          <div style={tabsContainerStyle}>
             <button onClick={() => setActiveTab("writer")} style={tabStyle(activeTab === "writer")}>
@@ -60,16 +65,17 @@ const Dashboard: React.FC = () => {
                {writerDocs.length === 0 ? (
                   <p>No documents yet.</p>
                ) : (
-                  writerDocs.map((doc) => (
-                     <div
-                        key={doc.id}
-                        onClick={() => openDoc(doc.id)}
-                        style={cardStyle}
-                     >
-                        <h3>{doc.title}</h3>
-                        <p>Last updated: {doc.updatedAt}</p>
-                     </div>
-                  ))
+                  <div style={docsContainerStyle}>
+                     {[...writerDocs]
+                        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                        .map((doc) => (
+                           <div key={doc.id} onClick={() => openDoc(doc.id)} style={docStyle}>
+                              <GrDocumentText style={{ fontSize: "150px", marginTop: "12px" }} color="white" />
+                              <h3 style={{ color: "white", marginBottom: "10px", marginTop: "10px" }}>{doc.title}</h3>
+                              <p style={{ color: "white" }}>Last updated: {doc.updatedAt}</p>
+                           </div>
+                        ))}
+                  </div>
                )}
             </section>
          )}
@@ -81,16 +87,17 @@ const Dashboard: React.FC = () => {
                {editorDocs.length === 0 ? (
                   <p>No editor documents.</p>
                ) : (
-                  editorDocs.map((doc) => (
-                     <div
-                        key={doc.id}
-                        onClick={() => openDoc(doc.id)}
-                        style={cardStyle}
-                     >
-                        <h3>{doc.title}</h3>
-                        <p>Last updated: {doc.updatedAt}</p>
-                     </div>
-                  ))
+                  <div style={docsContainerStyle}>
+                     {[...editorDocs]
+                        .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+                        .map((doc) => (
+                           <div key={doc.id} onClick={() => openDoc(doc.id)} style={docStyle}>
+                              <GrDocumentText style={{ fontSize: "150px", marginTop: "12px" }} color="white" />
+                              <h3 style={{ color: "white", marginBottom: "10px", marginTop: "10px" }}>{doc.title}</h3>
+                              <p style={{ color: "white" }}>Last updated: {doc.updatedAt}</p>
+                           </div>
+                        ))}
+                  </div>
                )}
             </section>
          )}
@@ -98,12 +105,21 @@ const Dashboard: React.FC = () => {
    );
 };
 
-const cardStyle: React.CSSProperties = {
+const docStyle: React.CSSProperties = {
    border: "1px solid #ccc",
+   backgroundColor: "#4f5f85",
    padding: "10px",
    borderRadius: "8px",
    marginTop: "10px",
    cursor: "pointer",
+   width: "fit-content",
+};
+
+const docsContainerStyle: React.CSSProperties = {
+   display: "flex",
+   marginLeft: "50px",
+   gap: "20px",
+   flexWrap: "wrap",
 };
 
 const tabStyle = (active: boolean): React.CSSProperties => ({
