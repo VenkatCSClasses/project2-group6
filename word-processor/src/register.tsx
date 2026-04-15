@@ -1,21 +1,23 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 
-const LoginPage = () => {
+const RegisterPage = () => {
    const navigate = useNavigate();
 
    const [username, setUsername] = useState<string>("");
    const [password, setPassword] = useState<string>("");
+   const [password2, setPassword2] = useState<string>("");
 
    const handleLogin = () => {
       console.log("Username:", username);
       console.log("Password:", password);
+      console.log("Confirm Password:", password2);
 
       // Temporary login (replace with backend later)
-      if (username && password) {
+      if ((username && password) && (password === password2)) {
+        //store new user in database here
          navigate("/dashboard");
       }
-      
    };
 
    return (
@@ -44,15 +46,19 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={input}
+         /> 
+
+         <input
+            type="password"
+            placeholder="Verify Password"
+            value={password2}
+            onChange={(e) => setPassword2(e.target.value)}
+            style={input}
          />
 
          <button style={button} onClick={handleLogin}>
-            Login
+            Register
          </button>
-
-         <Link to="/register" style={signUp}>
-            Sign Up
-         </Link>
       </div>
    );
 };
@@ -91,4 +97,4 @@ const input: React.CSSProperties = {
    alignItems: "center",
 };
 
-export default LoginPage;
+export default RegisterPage;
