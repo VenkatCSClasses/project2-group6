@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 //Define the SourceEntry structure for MLA data
 export type SourceEntry = {
+  inlineCitation: string;
   studio: string;
   volume: string;
   journal: string;

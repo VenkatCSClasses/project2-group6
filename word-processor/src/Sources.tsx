@@ -50,6 +50,19 @@ export default function Sources({ sourceList, onUpdateSource }: SourcesProps) {
                     placeholder={src.type === 'book' ? "Book Title" : "Title/Subject"} 
                     onChange={(e) => onUpdateSource({...src, title: e.target.value})} 
                   />
+                  
+                  {/* Universal Inline Citation */}
+                    <input
+                    value={src.inlineCitation || ''}
+                    // Placeholder changes based on type for user guidance, if the author name is missing, it will default to (Author, Year) in the preview
+                    //The user will need to edit the Year part hecause we currently don't have a way to guess it from the URL, but they can add it manually in the inline citation field if they want it to appear
+                    // If author is present but no year, it will default to (src.author, "Year") in the preview
+                    // If both author and year are missing, it will default to ("Author", "Year") in the preview
+                    placeholder={`Inline Citation (e.g., ${src.author ? src.author.split(',')[0] : "Author"}, Year)`}
+                    onChange={(e) => onUpdateSource({...src, inlineCitation: e.target.value})}
+                  />        
+
+                
 
                   {/* Conditional Logic for Specific Fields */}
                   {src.type === 'website' && (
@@ -98,6 +111,8 @@ export default function Sources({ sourceList, onUpdateSource }: SourcesProps) {
                     {src.url && ` ${src.url}. `}
                     {src.type === 'interview' ? `Personal interview. ` : `Accessed `}
                     {src.dateAccessed}.
+                    {/* update preview to show inline citation if available, otherwise default to (Author, Year) or (Author) or (Unknown Source) based on what info is present */}
+                    {src.inlineCitation ? ` (${src.inlineCitation})` : src.author ? ` (${src.author.split(',')[0]}${src.year ? `, ${src.year}` : ''})` : ' (Author, Year)'}
                   </p>
                   <button 
                     className="edit-trigger" 
