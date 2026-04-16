@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import data from "./accounts.json"; // Temporary import for accounts data (replace with backend later)
 
 const LoginPage = () => {
    const navigate = useNavigate();
@@ -7,18 +8,38 @@ const LoginPage = () => {
    const [username, setUsername] = useState<string>("");
    const [password, setPassword] = useState<string>("");
 
+   const [error, setError] = useState<string | null>(null);
+
    const handleLogin = () => {
       console.log("Username:", username);
       console.log("Password:", password);
 
-      // Temporary login (replace with backend later)
+      if (!username || !password) {
+      setError("Please fill in all fields");
+      return;
+   }
+
       if (username && password) {
-         navigate("/dashboard");
+         const user = data.users.find(u => u.username === username);
+         
+         if (user) {
+            if (password === user.password) {
+               setError(null);
+               navigate("/dashboard");
+            } else {
+               setError("Incorrect password");
+               return;
+            }
+         } else {
+            setError("User not found");
+            return;
+         }
       }
-      
+
    };
 
    return (
+
       <div
          style={{
             display: "flex",
@@ -28,7 +49,13 @@ const LoginPage = () => {
             height: "75vh",
          }}
       >
-         <h1 style={{marginBottom: "100px", fontSize: "75px"}}>Copybara|</h1>
+         {error && (
+            <div style={errorStyle}>
+               <span>{error}</span>
+               <button onClick={() => setError(null)} style={closeButtonStyle}>✕</button>
+            </div>
+         )}
+         <h1 style={{ marginBottom: "100px", fontSize: "75px" }}>Copybara|</h1>
 
          <input
             type="text"
@@ -89,6 +116,28 @@ const input: React.CSSProperties = {
    padding: "8px",
    justifyContent: "center",
    alignItems: "center",
+};
+
+const errorStyle: React.CSSProperties = {
+   position: "fixed",
+   top: "20px",
+   right: "20px",
+   backgroundColor: "#ef4444",
+   color: "white",
+   padding: "12px 16px",
+   borderRadius: "8px",
+   display: "flex",
+   alignItems: "center",
+   gap: "10px",
+   boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+};
+
+const closeButtonStyle: React.CSSProperties = {
+   background: "transparent",
+   border: "none",
+   color: "white",
+   fontSize: "16px",
+   cursor: "pointer",
 };
 
 export default LoginPage;

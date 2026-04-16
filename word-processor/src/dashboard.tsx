@@ -15,7 +15,7 @@ const Dashboard: React.FC = () => {
 
    const [activeTab, setActiveTab] = useState<"writer" | "editor">("writer");
 
-   // Simulated fetch (replace with API later)
+   // Replace with call to document list saved in user account JSON file or other backend storage
    useEffect(() => {
       const mockWriter: Document[] = [
          { id: "1", title: "My First Article", updatedAt: "2026-04-10" },
