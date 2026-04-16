@@ -1,4 +1,3 @@
-import { type YooptaContentValue } from '@yoopta/editor';
 import Paragraph from '@yoopta/paragraph';
 import Headings from '@yoopta/headings';
 import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
