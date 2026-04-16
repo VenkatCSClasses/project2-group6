@@ -5,6 +5,7 @@ import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/ma
 import { useMemo, useState, useRef, useEffect } from 'react';
 import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
 import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu } from '@yoopta/ui';
+import PublishToWordPress from './publish';
 
 const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
 const MARKS = [Bold, Italic, Underline, Strike, CodeMark, Highlight];
@@ -81,16 +82,16 @@ export default function Editor() {
     try {
       const current = editor.getEditorValue();
       if (!current || Object.keys(current).length === 0) {
-        const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] });
-        const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] });
-        const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] });
-        const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] });
+        const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] } as any);
+        const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] } as any);
+        const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] } as any);
+        const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] } as any);
 
-        const initial = {};
-        initial[heading.id] = heading;
-        initial[para1.id] = para1;
-        initial[para2.id] = para2;
-        initial[para3.id] = para3;
+        const initial = {} as YooptaContentValue;
+        (initial as Record<string, unknown>)[heading.id] = heading;
+        (initial as Record<string, unknown>)[para1.id] = para1;
+        (initial as Record<string, unknown>)[para2.id] = para2;
+        (initial as Record<string, unknown>)[para3.id] = para3;
 
         editor.setEditorValue(initial);
         editor.setPath({ current: 0 });
@@ -102,15 +103,21 @@ export default function Editor() {
   }, [editor]);
 
   return (
-    <YooptaEditor
-      editor={editor}
-      autoFocus
-      placeholder="Type / to open menu"
-      style={{ width: 750 }}>
-      <MyToolbar />
-      <MyFloatingBlockActions />
-      <SlashCommandMenu />
-    </YooptaEditor>
+    <>
+      <YooptaEditor
+        editor={editor}
+        autoFocus
+        placeholder="Type / to open menu"
+        style={{ width: 750 }}>
+        <MyToolbar />
+        <MyFloatingBlockActions />
+        <SlashCommandMenu />
+      </YooptaEditor>
+
+      <div style={{ width: 750, display: 'flex', justifyContent: 'flex-end' }}>
+        <PublishToWordPress getSourceValue={() => editor.getEditorValue()} />
+      </div>
+    </>
   );
 }
 
