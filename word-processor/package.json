@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@yoopta/collaboration": "^6.0.2",
     "@yoopta/editor": "^6.0.2",
     "@yoopta/headings": "^6.0.2",
     "@yoopta/marks": "^6.0.2",
@@ -19,7 +20,9 @@
     "react-dom": "^19.2.4",
     "slate": "^0.120.0",
     "slate-dom": "^0.119.0",
-    "slate-react": "^0.120.0"
+    "slate-react": "^0.120.0",
+    "ws": "^8.20.0",
+    "y-websocket": "^3.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
