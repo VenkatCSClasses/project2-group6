@@ -24,5 +24,11 @@
     "slate": "^0.124.0",
     "slate-dom": "^0.124.0",
     "slate-react": "^0.124.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix word-processor\""
   }
 }

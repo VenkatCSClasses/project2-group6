@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import data from "./accounts.json"; // Temporary import for accounts data (replace with backend later)
 
 const LoginPage = () => {
    const navigate = useNavigate();
@@ -10,30 +9,34 @@ const LoginPage = () => {
 
    const [error, setError] = useState<string | null>(null);
 
-   const handleLogin = () => {
+   const handleLogin = async () => {
       console.log("Username:", username);
       console.log("Password:", password);
 
       if (!username || !password) {
-      setError("Please fill in all fields");
-      return;
-   }
+         setError("Please fill in all fields");
+         return;
+      }
 
-      if (username && password) {
-         const user = data.users.find(u => u.username === username);
-         
-         if (user) {
-            if (password === user.password) {
-               setError(null);
-               navigate("/dashboard");
-            } else {
-               setError("Incorrect password");
-               return;
-            }
+      try {
+         const res = await fetch("http://localhost:3001/login", {
+            method: "POST",
+            headers: {
+               "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+         });
+
+         const data = await res.json();
+
+         if (res.ok) {
+            setError(null);
+            navigate("/dashboard");
          } else {
-            setError("User not found");
-            return;
+            setError(data.error);
          }
+      } catch (err) {
+         setError("Server error. Try again.");
       }
 
    };

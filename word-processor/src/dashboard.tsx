@@ -15,25 +15,6 @@ const Dashboard: React.FC = () => {
 
    const [activeTab, setActiveTab] = useState<"writer" | "editor">("writer");
 
-   // Replace with call to document list saved in user account JSON file or other backend storage
-   useEffect(() => {
-      const mockWriter: Document[] = [
-         { id: "1", title: "My First Article", updatedAt: "2026-04-10" },
-         { id: "2", title: "Interview Notes", updatedAt: "2026-04-12" },
-         { id: "3", title: "Venkat Article", updatedAt: "2026-04-14" },
-         { id: "4", title: "Another Article", updatedAt: "2026-04-15" },
-         { id: "5", title: "Old Article", updatedAt: "2026-04-01" },
-      ];
-
-      const mockEditor: Document[] = [
-         { id: "3", title: "Breaking News Draft", updatedAt: "2026-04-11" },
-         { id: "4", title: "Tech Review Draft", updatedAt: "2026-04-13" },
-      ];
-
-      setWriterDocs(mockWriter);
-      setEditorDocs(mockEditor);
-   }, []);
-
    const openDoc = (id: string) => {
       navigate(`/editor/${id}`);
    };
