@@ -42,9 +42,10 @@ const Dashboard: React.FC = () => {
    }, []);
 
    const createNewDoc = () => {
-      // Later this should call backend
-      const newId = Date.now().toString();
-      navigate(`/editor/${newId}`);
+      // Implement with new document creation and store into accounts.json backend file
+      // const newId = Date.now().toString();
+      // navigate(`/editor/${newId}`);
+      console.log("Create new document - functionality to be implemented");
    };
 
    return (
@@ -63,7 +64,13 @@ const Dashboard: React.FC = () => {
 
          {activeTab === "writer" && (
             <section>
-               <h2>Writer Documents</h2>
+               <div style={headerWrapperStyle}>
+                  <h2 style={headerTitleStyle}>Writer Documents</h2>
+
+                  <button onClick={createNewDoc} style={plusButtonStyle}>
+                     +
+                  </button>
+               </div>
 
                {writerDocs.length === 0 ? (
                   <p>No documents yet.</p>
@@ -147,6 +154,38 @@ const tabsContainerStyle: React.CSSProperties = {
    borderRadius: "15px",
    width: "fit-content",
    margin: "0 auto 20px auto",
+};
+
+const headerWrapperStyle: React.CSSProperties = {
+   position: "relative",
+   display: "flex",
+   justifyContent: "center",
+   alignItems: "center",
+   marginLeft: "50px",
+   marginRight: "50px",
+   marginBottom: "10px",
+};
+
+const headerTitleStyle: React.CSSProperties = {
+   margin: 0,
+   textAlign: "center",
+};
+
+const plusButtonStyle: React.CSSProperties = {
+   position: "absolute",
+   right: 0,               // pushes it to the right edge
+   fontSize: "30px",
+   width: "40px",
+   height: "40px",
+   borderRadius: "50%",
+   border: "none",
+   cursor: "pointer",
+   backgroundColor: "#b2b2b2",
+   color: "white",
+   display: "flex",
+   alignItems: "center",
+   justifyContent: "center",
+   lineHeight: "40px",
 };
 
 export default Dashboard;
