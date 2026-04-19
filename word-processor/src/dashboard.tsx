@@ -19,6 +19,28 @@ const Dashboard: React.FC = () => {
       navigate(`/editor/${id}`);
    };
 
+   useEffect(() => {
+      const fetchDocs = async () => {
+         const username = localStorage.getItem("username");
+
+         if (!username) {
+            console.error("No username found in localStorage");
+            return;
+         }
+
+         const res = await fetch(
+            `http://localhost:3001/api/documents?username=${username}`
+         );
+
+         const data = await res.json();
+
+         setWriterDocs(data.writerDocs || []);
+         setEditorDocs(data.editorDocs || []);
+      };
+
+      fetchDocs();
+   }, []);
+
    const createNewDoc = () => {
       // Later this should call backend
       const newId = Date.now().toString();

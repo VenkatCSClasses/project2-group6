@@ -1,10 +1,17 @@
 const express = require("express");
-const fs = require("fs");
 const cors = require("cors");
 
 const app = express();
+
 app.use(express.json());
 app.use(cors());
+
+// routes
+const documentsRouter = require("./documents");
+app.use("/api", documentsRouter);
+
+// auth routes
+const fs = require("fs");
 
 const FILE = "./accounts.json";
 
@@ -21,10 +28,7 @@ app.post("/register", (req, res) => {
   const newUser = {
     username,
     password,
-    documents: {
-      writer: [],
-      editor: []
-    }
+    documents: { writer: [], editor: [] }
   };
 
   data.users.push(newUser);

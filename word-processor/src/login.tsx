@@ -31,6 +31,7 @@ const LoginPage = () => {
 
          if (res.ok) {
             setError(null);
+            localStorage.setItem("username", username);
             navigate("/dashboard");
          } else {
             setError(data.error);
