@@ -2,9 +2,9 @@ import { type YooptaContentValue } from '@yoopta/editor';
 import Paragraph from '@yoopta/paragraph';
 import Headings from '@yoopta/headings';
 import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
-import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu } from '@yoopta/ui';
+import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu, useBlockActions } from '@yoopta/ui';
 import PublishToWordPress from './publish';
 
 const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
@@ -21,8 +21,33 @@ function MyToolbar() {
           {editor.formats.bold && (
             <FloatingToolbar.Button
               onClick={() => Marks.toggle(editor, { type: 'bold' })}
-              active={Marks.isActive(editor, { type: 'bold' })}>
+              active={Marks.isActive(editor, { type: 'bold' })}
+              title="Bold">
               B
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.italic && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'italic' })}
+              active={Marks.isActive(editor, { type: 'italic' })}
+              title="Italic">
+              I
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.underline && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'underline' })}
+              active={Marks.isActive(editor, { type: 'underline' })}
+              title="underline">
+              U
+            </FloatingToolbar.Button>
+          )}
+          {editor.formats.strike && (
+            <FloatingToolbar.Button
+              onClick={() => Marks.toggle(editor, { type: 'strike' })}
+              active={Marks.isActive(editor, { type: 'strike' })}
+              title="strike">
+              S
             </FloatingToolbar.Button>
           )}
         </FloatingToolbar.Group>
@@ -34,6 +59,7 @@ function MyToolbar() {
 // Floating block actions (plus button, drag handle)
 function MyFloatingBlockActions() {
   const editor = useYooptaEditor();
+  const { duplicateBlock, copyBlockLink, deleteBlock } = useBlockActions();
   const [blockOptionsOpen, setBlockOptionsOpen] = useState(false);
   const dragHandleRef = useRef<HTMLButtonElement>(null);
 
@@ -55,11 +81,33 @@ function MyFloatingBlockActions() {
             ⋮⋮
           </FloatingBlockActions.Button>
 
-          <BlockOptions
-            open={blockOptionsOpen}
-            onOpenChange={setBlockOptionsOpen}
-            anchor={dragHandleRef.current}>
-            <BlockOptions.Content>{/* Block options menu items */}</BlockOptions.Content>
+          <BlockOptions open={blockOptionsOpen} onOpenChange={setBlockOptionsOpen} anchor={dragHandleRef.current}>
+            <BlockOptions.Content>
+              <BlockOptions.Group>
+                <BlockOptions.Item
+                  disabled={!blockId}
+                  onSelect={() => {
+                    if (blockId) duplicateBlock(blockId);
+                  }}>
+                  Duplicate
+                </BlockOptions.Item>
+                <BlockOptions.Item
+                  disabled={!blockId}
+                  onSelect={() => {
+                    if (blockId) copyBlockLink(blockId);
+                  }}>
+                  Copy Link
+                </BlockOptions.Item>
+                <BlockOptions.Item
+                  variant="destructive"
+                  disabled={!blockId}
+                  onSelect={() => {
+                    if (blockId) deleteBlock(blockId);
+                  }}>
+                  Delete
+                </BlockOptions.Item>
+              </BlockOptions.Group>
+            </BlockOptions.Content>
           </BlockOptions>
         </>
       )}
@@ -68,44 +116,30 @@ function MyFloatingBlockActions() {
 }
 
 export default function Editor() {
-  const editor = useMemo(
-    () =>
-      createYooptaEditor({
-        plugins: PLUGINS,
-        marks: MARKS,
-      }),
-    [],
-  );
+  const editor = useMemo(() => {
+    const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] } as any);
+    const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] } as any);
+    const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] } as any);
+    const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] } as any);
 
-  // Populate a sample document on first render so features are visible
-  useEffect(() => {
-    try {
-      const current = editor.getEditorValue();
-      if (!current || Object.keys(current).length === 0) {
-        const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] } as any);
-        const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] } as any);
-        const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] } as any);
-        const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] } as any);
+    const initial = {} as YooptaContentValue;
+    (initial as Record<string, unknown>)[heading.id] = heading;
+    (initial as Record<string, unknown>)[para1.id] = para1;
+    (initial as Record<string, unknown>)[para2.id] = para2;
+    (initial as Record<string, unknown>)[para3.id] = para3;
 
-        const initial = {} as YooptaContentValue;
-        (initial as Record<string, unknown>)[heading.id] = heading;
-        (initial as Record<string, unknown>)[para1.id] = para1;
-        (initial as Record<string, unknown>)[para2.id] = para2;
-        (initial as Record<string, unknown>)[para3.id] = para3;
-
-        editor.setEditorValue(initial);
-        editor.setPath({ current: 0 });
-      }
-    } catch (e) {
-      // ignore initialization errors; editor will remain interactive
-      console.error('Yoopta init error', e);
-    }
-  }, [editor]);
+    return createYooptaEditor({
+      plugins: PLUGINS,
+      marks: MARKS,
+      value: initial,
+    });
+  }, []);
 
   return (
     <>
       <YooptaEditor
         editor={editor}
+        onChange={(value) => console.log(value)}
         autoFocus
         placeholder="Type / to open menu"
         style={{ width: 750 }}>
