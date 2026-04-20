@@ -1,5 +1,5 @@
-import type { EditorDocument, SaveDocumentInput } from './types';
-import { apiRequest } from '../api/request';
+import { apiRequest } from "../api/request";
+import type { EditorDocument, SaveDocumentInput } from "./types";
 
 export async function getDocument(
   documentId: string,
@@ -18,7 +18,18 @@ export async function saveDocument({
   sessionId,
 }: SaveDocumentInput): Promise<EditorDocument> {
   return apiRequest<EditorDocument>(`/api/documents/${documentId}`, {
-    method: 'PUT',
+    method: "PUT",
     body: { content, sessionId },
+  });
+}
+
+export async function assignViewer(
+  documentId: string,
+  sessionId: string,
+  viewerUsername: string | null,
+): Promise<EditorDocument> {
+  return apiRequest<EditorDocument>(`/api/documents/${documentId}/viewer`, {
+    method: "POST",
+    body: { sessionId, viewerUsername },
   });
 }

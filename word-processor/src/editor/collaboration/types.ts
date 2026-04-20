@@ -1,5 +1,5 @@
-export type AccessLevel = 'owner' | 'viewer';
-export type SessionMode = 'edit' | 'view';
+export type AccessLevel = "owner" | "viewer";
+export type SessionMode = "edit" | "view";
 
 export type ActiveSession = {
   sessionId: string;
@@ -11,8 +11,8 @@ export type ActiveSession = {
 
 export type PresenceSnapshot = {
   ownerName: string;
-  ownerConnected: boolean;
   viewerName: string | null;
+  ownerConnected: boolean;
   viewerConnected: boolean;
 };
 
@@ -25,9 +25,9 @@ export type ViewerInvite = {
 
 export type ClaimSessionInput = {
   documentId: string;
-  displayName: string;
-  accessLevel: AccessLevel;
-  ownerKey?: string;
+  username?: string;
+  displayName?: string;
+  accessLevel?: AccessLevel;
   inviteToken?: string;
   requestedSessionId?: string;
 };
