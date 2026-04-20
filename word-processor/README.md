@@ -1,75 +1,90 @@
-# React + TypeScript + Vite
+# Word Processor Collaboration Foundation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app is now organized around the workflow you described:
 
-Currently, two official plugins are available:
+- `owner`: the file creator keeps edit permissions
+- `viewer`: one remote viewer can connect at a time, stay read-only, and leave comments
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Current behavior
 
-## React Compiler
+- The document and comments are stored by a local Node server in `server/data/store.json`.
+- Only one owner session and one viewer session can be active at the same time.
+- The owner can switch their own UI between edit mode and viewer mode without giving up ownership.
+- The viewer stays read-only and can leave comments.
+- Real-time websocket collaboration is still optional and can be enabled later with a Yoopta-compatible server.
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## Running it for remote access
 
-Note: This will impact Vite dev & build performances.
+Start the backend:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run server
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Start the frontend in a second terminal:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+The Vite dev server is configured to listen on `0.0.0.0`, so another device on the same network can open:
+
+```text
+http://YOUR-MACHINE-IP:5173
+```
+
+The backend listens on port `4000` and the frontend proxies `/api` requests to it.
+
+If you see `Bad Gateway` when joining, the backend server is not running or not reachable on port `4000`. Verify this first:
+
+```bash
+http://127.0.0.1:4000/api/health
+```
+
+That endpoint should return:
+
+```json
+{"ok":true}
+```
+
+## Realtime setup hook
+
+Create a `.env` file from `.env.example` and set:
+
+```bash
+VITE_COLLAB_SERVER_URL=ws://localhost:4000
+```
+
+When that value is present, the editor shell is ready to connect to a Yoopta-compatible websocket collaboration server.
+
+## Owner access
+
+The local server uses this default owner key unless you override it with an environment variable:
+
+```text
+creator-key
+```
+
+You can change it when starting the backend:
+
+```bash
+$env:COLLAB_OWNER_KEY="my-secret-key"; npm run server
+```
+
+## Important files
+
+- `src/App.tsx`: collaboration workspace shell
+- `src/editor/session/sessionApi.ts`: owner/viewer session claiming and heartbeats
+- `src/editor/components/CollaborativeEditorShell.tsx`: editor surface with optional realtime transport
+- `src/editor/documents/documentApi.ts`: document persistence
+- `src/editor/comments/commentsApi.ts`: viewer comment persistence
+- `src/editor/collaboration/config.ts`: runtime collaboration config
+- `server/index.mjs`: shared document server and single-viewer locking
+
+## Next backend step
+
+To move from setup to true multi-user collaboration, add:
+
+1. A websocket server compatible with `@yoopta/collaboration`
+2. Authentication stronger than the simple owner key
+3. Persistent database storage instead of the local JSON file

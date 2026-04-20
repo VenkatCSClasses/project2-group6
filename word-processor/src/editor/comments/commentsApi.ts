@@ -1,25 +1,36 @@
-// comments/commentsApi.ts
-export async function listComments(documentId: string) {
-  const res = await fetch(`/api/documents/${documentId}/comments`);
-  return res.json();
+import { apiRequest } from '../api/request';
+import type { CreateCommentInput, DocumentComment } from './types';
+
+export async function listComments(
+  documentId: string,
+  sessionId: string,
+): Promise<DocumentComment[]> {
+  const searchParams = new URLSearchParams({ sessionId });
+
+  return apiRequest<DocumentComment[]>(
+    `/api/documents/${documentId}/comments?${searchParams.toString()}`,
+  );
 }
 
-export async function createComment(documentId: string, payload: {
-  blockId: string;
-  text: string;
-  authorId: string;
-  authorName: string;
-}) {
-  const res = await fetch(`/api/documents/${documentId}/comments`, {
+export async function createComment(
+  payload: CreateCommentInput,
+): Promise<DocumentComment> {
+  return apiRequest<DocumentComment>(`/api/documents/${payload.documentId}/comments`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: payload,
   });
-  return res.json();
 }
 
-export async function resolveComment(documentId: string, commentId: string) {
-  await fetch(`/api/documents/${documentId}/comments/${commentId}/resolve`, {
-    method: 'POST',
-  });
+export async function resolveComment(
+  documentId: string,
+  commentId: string,
+  sessionId: string,
+): Promise<void> {
+  return apiRequest<void>(
+    `/api/documents/${documentId}/comments/${commentId}/resolve`,
+    {
+      method: 'POST',
+      body: { sessionId },
+    },
+  );
 }

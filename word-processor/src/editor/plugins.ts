@@ -1,8 +1,9 @@
-// plugins.ts
 import Paragraph from '@yoopta/paragraph';
-import HeadingOne from '@yoopta/heading-one';
+import Headings from '@yoopta/headings';
 
 export const PLUGINS = [
   Paragraph,
-  HeadingOne,
+  Headings.HeadingOne,
+  Headings.HeadingTwo,
+  Headings.HeadingThree,
 ];

@@ -1,0 +1,22 @@
+{
+  "documents": {
+    "city-council-feature": {
+      "id": "city-council-feature",
+      "title": "City Council Feature",
+      "ownerId": "owner",
+      "ownerName": "File Creator",
+      "ownerKey": "creator-key",
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-19T19:55:12.047Z",
+      "sessions": {
+        "owner": {
+          "sessionId": "fb6b88e0-ee7b-4732-8fb9-04694e145421",
+          "displayName": "Suryash",
+          "lastSeenAt": "2026-04-19T19:56:50.505Z"
+        },
+        "viewer": null
+      }
+    }
+  }
+}

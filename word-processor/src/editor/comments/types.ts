@@ -1,22 +1,18 @@
-// components/CollabStatus.tsx
-import { useCollaboration, useRemoteCursors } from '@yoopta/collaboration';
+export type DocumentComment = {
+  id: string;
+  documentId: string;
+  text: string;
+  authorId: string;
+  authorName: string;
+  authorRole: 'owner' | 'viewer';
+  sectionLabel?: string;
+  resolved: boolean;
+  createdAt: string;
+};
 
-export function CollabStatus() {
-  const { status, connectedUsers, isSynced } = useCollaboration();
-  const cursors = useRemoteCursors();
-
-  return (
-    <aside>
-      <div>Status: {status}</div>
-      <div>Online: {connectedUsers.length}</div>
-      <div>{isSynced ? 'Synced' : 'Syncing...'}</div>
-      <div>
-        {cursors.map((c) => (
-          <div key={c.clientId}>
-            {c.user.name} editing {c.blockId}
-          </div>
-        ))}
-      </div>
-    </aside>
-  );
-}
+export type CreateCommentInput = {
+  documentId: string;
+  sessionId: string;
+  text: string;
+  sectionLabel?: string;
+};

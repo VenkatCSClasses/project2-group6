@@ -1,25 +1,28 @@
-// collaboration/createCollaborativeEditor.ts
-import { createYooptaEditor } from '@yoopta/editor';
+import { type YooptaContentValue } from '@yoopta/editor';
 import { withCollaboration } from '@yoopta/collaboration';
-import { PLUGINS } from '../editor/plugins';
-import { MARKS } from '../editor/marks';
+import { createBaseEditor } from '../createBaseEditor';
 
 export function createCollaborativeEditor({
   roomId,
   user,
+  websocketUrl,
   savedContent,
+  readOnly = false,
 }: {
   roomId: string;
   user: { id: string; name: string; color: string; avatar?: string };
-  savedContent?: any;
+  websocketUrl: string;
+  savedContent?: YooptaContentValue;
+  readOnly?: boolean;
 }) {
   return withCollaboration(
-    createYooptaEditor({ plugins: PLUGINS, marks: MARKS }),
+    createBaseEditor({ value: savedContent, readOnly }),
     {
-      url: 'ws://localhost:4000',
+      url: websocketUrl,
       roomId,
       user,
       initialValue: savedContent,
-    }
+      connect: false,
+    },
   );
 }

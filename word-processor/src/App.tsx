@@ -1,185 +1,392 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { type YooptaContentValue } from '@yoopta/editor';
-import Paragraph from '@yoopta/paragraph';
-import Headings from '@yoopta/headings';
-import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
-import { useMemo, useState, useRef, useEffect } from 'react';
-import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
-import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu } from '@yoopta/ui';
-import Typo from 'typo-js'; 
+import './App.css';
+import { ApiError } from './editor/api/request';
+import { CommentsPanel } from './editor/comments/commentsPanel';
+import { CollaborationStatus } from './editor/collaboration/CollaborationStatus';
+import { getCollaborationConfig } from './editor/collaboration/config';
+import { RemotePresence } from './editor/collaboration/RemotePresence';
+import type {
+  AccessLevel,
+  ActiveSession,
+  PresenceSnapshot,
+  SessionMode,
+} from './editor/collaboration/types';
+import { CollaborativeEditorShell } from './editor/components/CollaborativeEditorShell';
+import { getDocument, saveDocument } from './editor/documents/documentApi';
+import type { EditorDocument } from './editor/documents/types';
+import {
+  claimSession,
+  getPresence,
+  heartbeatSession,
+  releaseSession,
+  releaseSessionBeacon,
+} from './editor/session/sessionApi';
 
-const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
-const MARKS = [Bold, Italic, Underline, Strike, CodeMark, Highlight];
+const DOCUMENT_ID = 'city-council-feature';
 
-// --- TOOLBAR COMPONENTS (Unchanged) ---
-function MyToolbar() {
-  const editor = useYooptaEditor();
-  return (
-    <FloatingToolbar>
-      <FloatingToolbar.Content>
-        <FloatingToolbar.Group>
-          {editor.formats.bold && (<FloatingToolbar.Button onClick={() => Marks.toggle(editor, { type: 'bold' })} active={Marks.isActive(editor, { type: 'bold' })} title="Bold">B</FloatingToolbar.Button>)}
-          {editor.formats.italic && (<FloatingToolbar.Button onClick={() => Marks.toggle(editor, { type: 'italic' })} active={Marks.isActive(editor, { type: 'italic' })} title="Italic">I</FloatingToolbar.Button>)}
-          {editor.formats.underline && (<FloatingToolbar.Button onClick={() => Marks.toggle(editor, { type: 'underline' })} active={Marks.isActive(editor, { type: 'underline' })} title="Underline">U</FloatingToolbar.Button>)}
-          {editor.formats.strike && (<FloatingToolbar.Button onClick={() => Marks.toggle(editor, { type: 'strike' })} active={Marks.isActive(editor, { type: 'strike' })} title="Strike">S</FloatingToolbar.Button>)}
-        </FloatingToolbar.Group>
-      </FloatingToolbar.Content>
-    </FloatingToolbar>
-  );
-}
+function JoinWorkspace({
+  joinError,
+  isJoining,
+  onJoin,
+}: {
+  joinError: string | null;
+  isJoining: boolean;
+  onJoin: (payload: {
+    displayName: string;
+    accessLevel: AccessLevel;
+    ownerKey?: string;
+  }) => Promise<void>;
+}) {
+  const [displayName, setDisplayName] = useState('');
+  const [accessLevel, setAccessLevel] = useState<AccessLevel>('viewer');
+  const [ownerKey, setOwnerKey] = useState('');
 
-function MyFloatingBlockActions() {
-  const editor = useYooptaEditor();
-  const [blockOptionsOpen, setBlockOptionsOpen] = useState(false);
-  const dragHandleRef = useRef<HTMLButtonElement>(null);
-
-  return (
-    <FloatingBlockActions frozen={blockOptionsOpen}>
-      {({ blockId }: { blockId?: string | null }) => (
-        <>
-          <FloatingBlockActions.Button onClick={() => { if (!blockId) return; const block = Blocks.getBlock(editor, { id: blockId }); if (block) editor.insertBlock('Paragraph', { at: block.meta.order + 1, focus: true }); }}>+</FloatingBlockActions.Button>
-          <FloatingBlockActions.Button ref={dragHandleRef} onClick={() => setBlockOptionsOpen(true)}>⋮⋮</FloatingBlockActions.Button>
-          <BlockOptions open={blockOptionsOpen} onOpenChange={setBlockOptionsOpen} anchor={dragHandleRef.current}>
-            <BlockOptions.Content>{/* Options */}</BlockOptions.Content>
-          </BlockOptions>
-        </>
-      )}
-    </FloatingBlockActions>
-  );
-}
-
-// --- MAIN EDITOR COMPONENT ---
-export default function Editor() {
-  const [dict, setDict] = useState<Typo | null>(null);
-  
-  // State to hold our found errors
-  const [typos, setTypos] = useState<string[]>([]);
-  const [grammarFlags, setGrammarFlags] = useState<string[]>([]);
-
-  const editor = useMemo(() => createYooptaEditor({ plugins: PLUGINS, marks: MARKS }), []);
-
-  // 1. Initialize Dictionary
-  useEffect(() => {
-    const typo = new Typo('en_US', false, false, {
-      dictionaryPath: '/index.dic/en_US',
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await onJoin({
+      displayName,
+      accessLevel,
+      ownerKey: accessLevel === 'owner' ? ownerKey : undefined,
     });
-    setDict(typo);
+  }
+
+  return (
+    <main className="app-shell">
+      <section className="hero-panel join-shell">
+        <div>
+          <p className="eyebrow">Remote Access</p>
+          <h1>Join The Document</h1>
+          <p className="hero-copy">
+            Only the file creator keeps owner permissions. A single remote viewer
+            can connect at a time and leave comments while staying read-only.
+          </p>
+        </div>
+
+        <form className="join-form" onSubmit={handleSubmit}>
+          <label>
+            Your name
+            <input
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Name shown in comments and presence"
+            />
+          </label>
+
+          <div className="access-toggle">
+            <button
+              type="button"
+              className={accessLevel === 'viewer' ? 'toggle-active' : ''}
+              onClick={() => setAccessLevel('viewer')}
+            >
+              Join as viewer
+            </button>
+            <button
+              type="button"
+              className={accessLevel === 'owner' ? 'toggle-active' : ''}
+              onClick={() => setAccessLevel('owner')}
+            >
+              Join as owner
+            </button>
+          </div>
+
+          {accessLevel === 'owner' ? (
+            <label>
+              Owner key
+              <input
+                value={ownerKey}
+                onChange={(event) => setOwnerKey(event.target.value)}
+                placeholder="Owner secret"
+                type="password"
+              />
+            </label>
+          ) : null}
+
+          {joinError ? <p className="join-error">{joinError}</p> : null}
+
+          <button className="primary-button" disabled={isJoining} type="submit">
+            {isJoining ? 'Joining...' : 'Join workspace'}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
+export default function App() {
+  const [document, setDocument] = useState<EditorDocument | null>(null);
+  const [session, setSession] = useState<ActiveSession | null>(null);
+  const [sessionMode, setSessionMode] = useState<SessionMode>('edit');
+  const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const config = useMemo(() => getCollaborationConfig(), []);
+  const releaseRef = useRef<ActiveSession | null>(null);
+
+  useEffect(() => {
+    releaseRef.current = session;
+  }, [session]);
+
+  function handleSessionExpired(message: string) {
+    setJoinError(message);
+    setSession(null);
+    setDocument(null);
+    setPresence(null);
+  }
+
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (releaseRef.current) {
+        releaseSessionBeacon(releaseRef.current.documentId, releaseRef.current.sessionId);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
-  // 2. The Checking Engine
-  const handleChange = (value: YooptaContentValue) => {
-    if (!dict) return;
+  async function loadDocument(activeSession: ActiveSession) {
+    const loadedDocument = await getDocument(
+      activeSession.documentId,
+      activeSession.sessionId,
+    );
+    setDocument(loadedDocument);
+    setPresence(loadedDocument.presence);
+  }
 
-    const foundTypos = new Set<string>();
-    const foundGrammar = new Set<string>();
+  async function handleJoin(payload: {
+    displayName: string;
+    accessLevel: AccessLevel;
+    ownerKey?: string;
+  }) {
+    if (!payload.displayName.trim()) {
+      setJoinError('Enter a name before joining the workspace.');
+      return;
+    }
 
-    // Scan through all Yoopta blocks and text nodes
-    Object.values(value).forEach((block) => {
-      block.value.forEach((node: any) => {
-        if (node.children) {
-          node.children.forEach((child: any) => {
-            if (typeof child.text === 'string') {
-              
-              // --- SPELL CHECK LOGIC ---
-              // Extract words using regex (ignores punctuation)
-              const words = child.text.match(/\b[a-zA-Z]+\b/g) || [];
-              words.forEach((word: string) => {
-                // Ignore single letters, then check dictionary
-                if (word.length > 1 && !dict.check(word)) {
-                  foundTypos.add(word);
-                }
-              });
+    setIsJoining(true);
+    setJoinError(null);
 
-              // --- GRAMMAR CHECK LOGIC (Basic Example) ---
-              // Note: Typo.js does not do grammar. You have to use custom rules 
-              // or an API (like LanguageTool) for real grammar. Here is a basic rule engine:
-              const textLower = child.text.toLowerCase();
-              if (textLower.includes("they is")) foundGrammar.add('"they is" should be "they are"');
-              if (textLower.includes("your a")) foundGrammar.add('"your a" should likely be "you\'re a"');
-              if (textLower.includes("i seen")) foundGrammar.add('"I seen" should be "I saw" or "I have seen"');
-            }
-          });
+    try {
+      const activeSession = await claimSession({
+        documentId: DOCUMENT_ID,
+        displayName: payload.displayName.trim(),
+        accessLevel: payload.accessLevel,
+        ownerKey: payload.ownerKey,
+      });
+
+      setSession(activeSession);
+      setSessionMode(activeSession.accessLevel === 'owner' ? 'edit' : 'view');
+      await loadDocument(activeSession);
+    } catch (error) {
+      setJoinError(error instanceof Error ? error.message : 'Unable to join.');
+    } finally {
+      setIsJoining(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!session) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void heartbeatSession(session.documentId, session.sessionId).catch((error) => {
+        if (error instanceof ApiError && error.status === 401) {
+          handleSessionExpired('Your session expired. Join the workspace again.');
         }
       });
-    });
+    }, config.heartbeatIntervalMs);
 
-    // Update the UI states
-    setTypos(Array.from(foundTypos));
-    setGrammarFlags(Array.from(foundGrammar));
-  };
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [config.heartbeatIntervalMs, session]);
 
-  // 3. Initial Sample Data
   useEffect(() => {
-    try {
-      const current = editor.getEditorValue();
-      if (!current || Object.keys(current).length === 0) {
-        const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] });
-        const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo documentt showing Paragraphs, Headings and Marks.' }] }] });
-        // Added a deliberate typo here for testing!
-        const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'I seen that this editor is awsume!' }] }] });
-
-        const initial = { [heading.id]: heading, [para1.id]: para1, [para2.id]: para2 };
-        editor.setEditorValue(initial);
-        editor.setPath({ current: 0 });
-        
-        // Run an initial check on the default text
-        handleChange(initial as unknown as YooptaContentValue);
-      }
-    } catch (e) {
-      console.error('Yoopta init error', e);
+    if (!session) {
+      return undefined;
     }
-  }, [editor, dict]); // Re-run when dictionary loads
+
+    const loadPresence = async () => {
+      try {
+        const nextPresence = await getPresence(session.documentId, session.sessionId);
+        setPresence(nextPresence);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          handleSessionExpired('Your session expired. Join the workspace again.');
+        }
+      }
+    };
+
+    void loadPresence();
+    const intervalId = window.setInterval(() => {
+      void loadPresence();
+    }, config.presencePollIntervalMs);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [config.presencePollIntervalMs, session]);
+
+  useEffect(() => {
+    if (!session || session.accessLevel === 'owner') {
+      return undefined;
+    }
+
+    const reloadDocument = async () => {
+      try {
+        const nextDocument = await getDocument(session.documentId, session.sessionId);
+        setDocument(nextDocument);
+        setPresence(nextDocument.presence);
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          handleSessionExpired('Your viewer session expired. Join the workspace again.');
+        }
+      }
+    };
+
+    void reloadDocument();
+    const intervalId = window.setInterval(() => {
+      void reloadDocument();
+    }, config.documentPollIntervalMs);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [config.documentPollIntervalMs, session]);
+
+  useEffect(() => {
+    return () => {
+      if (releaseRef.current) {
+        void releaseSession(
+          releaseRef.current.documentId,
+          releaseRef.current.sessionId,
+        );
+      }
+    };
+  }, []);
+
+  async function handleSave(nextContent: YooptaContentValue) {
+    if (!session) {
+      return;
+    }
+
+    try {
+      const savedDocument = await saveDocument({
+        documentId: session.documentId,
+        content: nextContent,
+        sessionId: session.sessionId,
+      });
+
+      setDocument(savedDocument);
+      setPresence(savedDocument.presence);
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        handleSessionExpired('Your owner session is no longer active. Join again.');
+      }
+    }
+  }
+
+  if (!session || !document || !presence) {
+    return (
+      <JoinWorkspace joinError={joinError} isJoining={isJoining} onJoin={handleJoin} />
+    );
+  }
+
+  const isOwner = session.accessLevel === 'owner';
+  const canEdit = isOwner && sessionMode === 'edit';
 
   return (
-    <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start', padding: '20px' }}>
-      
-      {/* LEFT COLUMN: THE EDITOR */}
-      <div style={{ border: '1px solid #e2e8f0', padding: '20px', borderRadius: '8px', backgroundColor: '#fff' }}>
-        <YooptaEditor
-          editor={editor}
-          autoFocus
-          placeholder="Type / to open menu"
-          style={{ width: 650 }}
-          onChange={handleChange}
-        >
-          <MyToolbar />
-          <MyFloatingBlockActions />
-          <SlashCommandMenu />
-        </YooptaEditor>
-      </div>
-
-      {/* RIGHT COLUMN: THE REPORT DASHBOARD */}
-      <div style={{ width: '300px', padding: '15px', backgroundColor: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-        <h3 style={{ marginTop: 0, borderBottom: '1px solid #cbd5e1', paddingBottom: '10px' }}>Document Report</h3>
-        
-        {/* Spelling Section */}
-        <div style={{ marginBottom: '20px' }}>
-          <h4 style={{ color: '#ef4444', marginBottom: '8px' }}>Spelling Errors ({typos.length})</h4>
-          {typos.length === 0 ? (
-            <p style={{ fontSize: '14px', color: '#64748b' }}>No typos found!</p>
-          ) : (
-            <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '14px', color: '#b91c1c' }}>
-              {typos.map((typo, idx) => (
-                <li key={idx}><strong>{typo}</strong></li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Grammar Section */}
+    <main className="app-shell">
+      <section className="hero-panel">
         <div>
-          <h4 style={{ color: '#eab308', marginBottom: '8px' }}>Grammar Flags ({grammarFlags.length})</h4>
-          {grammarFlags.length === 0 ? (
-            <p style={{ fontSize: '14px', color: '#64748b' }}>Grammar looks good!</p>
-          ) : (
-            <ul style={{ paddingLeft: '20px', margin: 0, fontSize: '14px', color: '#a16207' }}>
-              {grammarFlags.map((flag, idx) => (
-                <li key={idx}>{flag}</li>
-              ))}
-            </ul>
-          )}
+          <p className="eyebrow">Remote Collaboration</p>
+          <h1>{document.title}</h1>
+          <p className="hero-copy">
+            The file creator stays the owner. One viewer slot is available for a
+            remote person to read the draft and leave comments.
+          </p>
         </div>
 
-      </div>
-    </div>
+        <div className="role-controls">
+          <div className="role-summary">
+            <span className="summary-pill">
+              {isOwner ? 'Owner access' : 'Viewer access'}
+            </span>
+            <span className="summary-pill">
+              {presence.viewerConnected ? 'Viewer slot in use' : 'Viewer slot open'}
+            </span>
+          </div>
+
+          {isOwner ? (
+            <div className="access-toggle">
+              <button
+                type="button"
+                className={sessionMode === 'edit' ? 'toggle-active' : ''}
+                onClick={() => setSessionMode('edit')}
+              >
+                Edit mode
+              </button>
+              <button
+                type="button"
+                className={sessionMode === 'view' ? 'toggle-active' : ''}
+                onClick={() => setSessionMode('view')}
+              >
+                Viewer mode
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </section>
+
+      <section className="workspace-grid">
+        <section className="editor-panel">
+          <div className="panel-header">
+            <div>
+              <p className="eyebrow">Draft</p>
+              <h2>{canEdit ? 'Owner editing' : 'Read-only view'}</h2>
+            </div>
+            <span className={`mode-pill ${canEdit ? 'is-live' : 'is-local'}`}>
+              {canEdit ? 'Can edit' : 'Read only'}
+            </span>
+          </div>
+
+          <CollaborativeEditorShell
+            documentId={document.id}
+            currentUser={{
+              id: session.sessionId,
+              name: session.displayName,
+              color: isOwner ? '#0f766e' : '#2563eb',
+            }}
+            websocketUrl={config.websocketUrl}
+            savedContent={document.content}
+            readOnly={!canEdit}
+            onChange={canEdit ? handleSave : undefined}
+          />
+        </section>
+
+        <section className="sidebar">
+          <CollaborationStatus
+            accessLevel={session.accessLevel}
+            sessionMode={sessionMode}
+            ownerName={document.ownerName}
+            viewerName={presence.viewerName}
+            websocketUrl={config.websocketUrl}
+            isRealtimeEnabled={config.isRealtimeEnabled}
+            updatedAt={document.updatedAt}
+          />
+          <RemotePresence session={session} presence={presence} />
+          <CommentsPanel
+            documentId={document.id}
+            sessionId={session.sessionId}
+            accessLevel={session.accessLevel}
+            canResolveComments={isOwner}
+          />
+        </section>
+      </section>
+    </main>
   );
 }
