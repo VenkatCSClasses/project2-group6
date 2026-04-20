@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, resolve } from 'node:path';
@@ -10,6 +11,14 @@ const ownerKey = process.env.COLLAB_OWNER_KEY || 'creator-key';
 const ownerName = process.env.COLLAB_OWNER_NAME || 'File Creator';
 const sessionTtlMs = 30_000;
 const storePath = resolve(__dirname, 'data', 'store.json');
+
+function createInviteState() {
+  return {
+    token: null,
+    createdAt: null,
+    lastUsedAt: null,
+  };
+}
 
 function ensureStore() {
   if (!existsSync(storePath)) {
@@ -31,6 +40,10 @@ function nowIso() {
   return new Date().toISOString();
 }
 
+function createInviteToken() {
+  return randomBytes(18).toString('base64url');
+}
+
 function createDocument(documentId) {
   return {
     id: documentId,
@@ -45,7 +58,20 @@ function createDocument(documentId) {
       owner: null,
       viewer: null,
     },
+    invite: createInviteState(),
   };
+}
+
+function ensureInviteState(document) {
+  if (!document.invite || typeof document.invite !== 'object') {
+    document.invite = createInviteState();
+  }
+
+  document.invite.token ??= null;
+  document.invite.createdAt ??= null;
+  document.invite.lastUsedAt ??= null;
+
+  return document.invite;
 }
 
 function getDocumentRecord(store, documentId) {
@@ -53,7 +79,10 @@ function getDocumentRecord(store, documentId) {
     store.documents[documentId] = createDocument(documentId);
   }
 
-  return store.documents[documentId];
+  const document = store.documents[documentId];
+  ensureInviteState(document);
+
+  return document;
 }
 
 function isActiveSession(session) {
@@ -94,6 +123,17 @@ function toDocumentResponse(document) {
     content: document.content,
     updatedAt: document.updatedAt,
     presence: getPresence(document),
+  };
+}
+
+function toInviteResponse(document) {
+  const invite = ensureInviteState(document);
+
+  return {
+    documentId: document.id,
+    token: invite.token,
+    createdAt: invite.createdAt,
+    lastUsedAt: invite.lastUsedAt,
   };
 }
 
@@ -177,7 +217,9 @@ const server = createServer(async (request, response) => {
       const body = await readJson(request);
       const accessLevel = body.accessLevel;
       const displayName = String(body.displayName || '').trim();
+      const inviteToken = String(body.inviteToken || '').trim();
       const requestedSessionId = String(body.requestedSessionId || crypto.randomUUID());
+      const invite = ensureInviteState(document);
 
       if (!displayName) {
         sendJson(response, 400, { error: 'Display name is required.' });
@@ -201,11 +243,19 @@ const server = createServer(async (request, response) => {
           lastSeenAt: nowIso(),
         };
       } else if (accessLevel === 'viewer') {
+        if (!invite.token || inviteToken !== invite.token) {
+          sendJson(response, 403, {
+            error: 'This reviewer slot is protected. Open the invite link shared by the owner.',
+          });
+          return;
+        }
+
         if (document.sessions.viewer && document.sessions.viewer.sessionId !== requestedSessionId) {
           sendJson(response, 409, { error: 'A viewer is already connected to this file.' });
           return;
         }
 
+        invite.lastUsedAt = nowIso();
         document.sessions.viewer = {
           sessionId: requestedSessionId,
           displayName,
@@ -273,6 +323,47 @@ const server = createServer(async (request, response) => {
       sessionState.session.lastSeenAt = nowIso();
       writeStore(store);
       sendJson(response, 200, getPresence(document));
+      return;
+    }
+
+    if (request.method === 'GET' && parts[3] === 'invite' && parts.length === 4) {
+      const sessionState = requireSession(
+        document,
+        url.searchParams.get('sessionId') || '',
+      );
+
+      if (!sessionState || sessionState.accessLevel !== 'owner') {
+        sendJson(response, 403, {
+          error: 'Only the file owner can view or manage the invite link.',
+        });
+        return;
+      }
+
+      sessionState.session.lastSeenAt = nowIso();
+      writeStore(store);
+      sendJson(response, 200, toInviteResponse(document));
+      return;
+    }
+
+    if (request.method === 'POST' && parts[3] === 'invite' && parts.length === 4) {
+      const body = await readJson(request);
+      const sessionState = requireSession(document, String(body.sessionId || ''));
+
+      if (!sessionState || sessionState.accessLevel !== 'owner') {
+        sendJson(response, 403, {
+          error: 'Only the file owner can view or manage the invite link.',
+        });
+        return;
+      }
+
+      const invite = ensureInviteState(document);
+      invite.token = createInviteToken();
+      invite.createdAt = nowIso();
+      invite.lastUsedAt = null;
+      sessionState.session.lastSeenAt = nowIso();
+
+      writeStore(store);
+      sendJson(response, 200, toInviteResponse(document));
       return;
     }
 

@@ -89,7 +89,8 @@
 .role-controls select,
 .join-form input,
 .comment-form input,
-.comment-form textarea {
+.comment-form textarea,
+.invite-link-field input {
   width: 100%;
   border-radius: 14px;
   border: 1px solid rgba(16, 32, 51, 0.14);
@@ -109,6 +110,12 @@
   display: grid;
   gap: 16px;
   min-width: 320px;
+}
+
+.join-note {
+  margin: 14px 0 0;
+  color: #8a4b08;
+  font-weight: 700;
 }
 
 .summary-pill,
@@ -280,8 +287,48 @@
   font-weight: 600;
 }
 
+.invite-card {
+  width: min(100%, 420px);
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(16, 32, 51, 0.1);
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.invite-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.invite-link-field {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+  color: #223247;
+}
+
+.invite-link-field input {
+  color: #415267;
+}
+
+.invite-feedback {
+  margin: 0;
+  color: #166534;
+  font-weight: 600;
+}
+
 .editor-surface {
   min-height: 680px;
+}
+
+.access-toggle button:disabled,
+.primary-button:disabled,
+.secondary-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 @media (max-width: 1100px) {

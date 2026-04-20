@@ -3,6 +3,7 @@ import type {
   ActiveSession,
   ClaimSessionInput,
   PresenceSnapshot,
+  ViewerInvite,
 } from '../collaboration/types';
 import { apiRequest } from '../api/request';
 
@@ -51,4 +52,25 @@ export async function getPresence(
   return apiRequest<PresenceSnapshot>(
     `/api/documents/${documentId}/session?${searchParams.toString()}`,
   );
+}
+
+export async function getViewerInvite(
+  documentId: string,
+  sessionId: string,
+): Promise<ViewerInvite> {
+  const searchParams = new URLSearchParams({ sessionId });
+
+  return apiRequest<ViewerInvite>(
+    `/api/documents/${documentId}/invite?${searchParams.toString()}`,
+  );
+}
+
+export async function generateViewerInvite(
+  documentId: string,
+  sessionId: string,
+): Promise<ViewerInvite> {
+  return apiRequest<ViewerInvite>(`/api/documents/${documentId}/invite`, {
+    method: 'POST',
+    body: { sessionId },
+  });
 }

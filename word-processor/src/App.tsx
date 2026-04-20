@@ -11,25 +11,49 @@ import type {
   ActiveSession,
   PresenceSnapshot,
   SessionMode,
+  ViewerInvite,
 } from './editor/collaboration/types';
 import { CollaborativeEditorShell } from './editor/components/CollaborativeEditorShell';
 import { getDocument, saveDocument } from './editor/documents/documentApi';
 import type { EditorDocument } from './editor/documents/types';
 import {
   claimSession,
+  generateViewerInvite,
   getPresence,
+  getViewerInvite,
   heartbeatSession,
   releaseSession,
   releaseSessionBeacon,
 } from './editor/session/sessionApi';
 
-const DOCUMENT_ID = 'city-council-feature';
+const DEFAULT_DOCUMENT_ID = 'city-council-feature';
+
+function readJoinContext() {
+  const searchParams = new URLSearchParams(window.location.search);
+  const documentId = searchParams.get('document')?.trim() || DEFAULT_DOCUMENT_ID;
+  const inviteToken = searchParams.get('invite')?.trim() || null;
+
+  return { documentId, inviteToken };
+}
+
+function buildInviteUrl(documentId: string, inviteToken: string) {
+  const inviteUrl = new URL(window.location.href);
+  inviteUrl.search = '';
+  inviteUrl.searchParams.set('document', documentId);
+  inviteUrl.searchParams.set('invite', inviteToken);
+
+  return inviteUrl.toString();
+}
 
 function JoinWorkspace({
+  documentId,
+  hasViewerInvite,
   joinError,
   isJoining,
   onJoin,
 }: {
+  documentId: string;
+  hasViewerInvite: boolean;
   joinError: string | null;
   isJoining: boolean;
   onJoin: (payload: {
@@ -39,8 +63,8 @@ function JoinWorkspace({
   }) => Promise<void>;
 }) {
   const [displayName, setDisplayName] = useState('');
-  const [accessLevel, setAccessLevel] = useState<AccessLevel>('viewer');
   const [ownerKey, setOwnerKey] = useState('');
+  const accessLevel: AccessLevel = hasViewerInvite ? 'viewer' : 'owner';
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,9 +82,11 @@ function JoinWorkspace({
           <p className="eyebrow">Remote Access</p>
           <h1>Join The Document</h1>
           <p className="hero-copy">
-            Only the file creator keeps owner permissions. A single remote viewer
-            can connect at a time and leave comments while staying read-only.
+            {hasViewerInvite
+              ? 'This invite link opens the active reviewer slot. Enter your name to join the draft in read-only mode and leave comments.'
+              : 'Only the file creator keeps owner permissions. Generate an invite link from the workspace when you want a reviewer to collaborate.'}
           </p>
+          <p className="join-note">Document: {documentId}</p>
         </div>
 
         <form className="join-form" onSubmit={handleSubmit}>
@@ -77,14 +103,14 @@ function JoinWorkspace({
             <button
               type="button"
               className={accessLevel === 'viewer' ? 'toggle-active' : ''}
-              onClick={() => setAccessLevel('viewer')}
+              disabled={!hasViewerInvite}
             >
-              Join as viewer
+              {hasViewerInvite ? 'Join as viewer' : 'Viewer invite required'}
             </button>
             <button
               type="button"
               className={accessLevel === 'owner' ? 'toggle-active' : ''}
-              onClick={() => setAccessLevel('owner')}
+              disabled={hasViewerInvite}
             >
               Join as owner
             </button>
@@ -118,10 +144,18 @@ export default function App() {
   const [session, setSession] = useState<ActiveSession | null>(null);
   const [sessionMode, setSessionMode] = useState<SessionMode>('edit');
   const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
+  const [viewerInvite, setViewerInvite] = useState<ViewerInvite | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteFeedback, setInviteFeedback] = useState<string | null>(null);
+  const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const config = useMemo(() => getCollaborationConfig(), []);
+  const joinContext = useMemo(() => readJoinContext(), []);
   const releaseRef = useRef<ActiveSession | null>(null);
+  const inviteLink = viewerInvite?.token
+    ? buildInviteUrl(session?.documentId ?? joinContext.documentId, viewerInvite.token)
+    : null;
 
   useEffect(() => {
     releaseRef.current = session;
@@ -132,6 +166,9 @@ export default function App() {
     setSession(null);
     setDocument(null);
     setPresence(null);
+    setViewerInvite(null);
+    setInviteError(null);
+    setInviteFeedback(null);
   }
 
   useEffect(() => {
@@ -166,15 +203,21 @@ export default function App() {
       return;
     }
 
+    if (payload.accessLevel === 'viewer' && !joinContext.inviteToken) {
+      setJoinError('Open the invite link shared by the owner to join as a viewer.');
+      return;
+    }
+
     setIsJoining(true);
     setJoinError(null);
 
     try {
       const activeSession = await claimSession({
-        documentId: DOCUMENT_ID,
+        documentId: joinContext.documentId,
         displayName: payload.displayName.trim(),
         accessLevel: payload.accessLevel,
         ownerKey: payload.ownerKey,
+        inviteToken: payload.accessLevel === 'viewer' ? joinContext.inviteToken ?? undefined : undefined,
       });
 
       setSession(activeSession);
@@ -269,6 +312,39 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!session || session.accessLevel !== 'owner') {
+      setViewerInvite(null);
+      setInviteError(null);
+      setInviteFeedback(null);
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    const loadInvite = async () => {
+      try {
+        const nextInvite = await getViewerInvite(session.documentId, session.sessionId);
+        if (isMounted) {
+          setViewerInvite(nextInvite);
+          setInviteError(null);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setInviteError(
+            error instanceof Error ? error.message : 'Unable to load the invite link.',
+          );
+        }
+      }
+    };
+
+    void loadInvite();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [session]);
+
   async function handleSave(nextContent: YooptaContentValue) {
     if (!session) {
       return;
@@ -290,9 +366,57 @@ export default function App() {
     }
   }
 
+  async function handleGenerateInvite() {
+    if (!session || session.accessLevel !== 'owner') {
+      return;
+    }
+
+    setIsGeneratingInvite(true);
+    setInviteError(null);
+    setInviteFeedback(null);
+
+    try {
+      const nextInvite = await generateViewerInvite(session.documentId, session.sessionId);
+      setViewerInvite(nextInvite);
+      setInviteFeedback('Invite link ready to share.');
+    } catch (error) {
+      setInviteError(
+        error instanceof Error ? error.message : 'Unable to generate an invite link.',
+      );
+    } finally {
+      setIsGeneratingInvite(false);
+    }
+  }
+
+  async function handleCopyInvite() {
+    if (!inviteLink) {
+      return;
+    }
+
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard access is unavailable.');
+      }
+
+      await navigator.clipboard.writeText(inviteLink);
+      setInviteFeedback('Invite link copied.');
+      setInviteError(null);
+    } catch (error) {
+      setInviteError(
+        error instanceof Error ? error.message : 'Unable to copy the invite link.',
+      );
+    }
+  }
+
   if (!session || !document || !presence) {
     return (
-      <JoinWorkspace joinError={joinError} isJoining={isJoining} onJoin={handleJoin} />
+      <JoinWorkspace
+        documentId={joinContext.documentId}
+        hasViewerInvite={Boolean(joinContext.inviteToken)}
+        joinError={joinError}
+        isJoining={isJoining}
+        onJoin={handleJoin}
+      />
     );
   }
 
@@ -322,23 +446,80 @@ export default function App() {
           </div>
 
           {isOwner ? (
-            <div className="access-toggle">
-              <button
-                type="button"
-                className={sessionMode === 'edit' ? 'toggle-active' : ''}
-                onClick={() => setSessionMode('edit')}
-              >
-                Edit mode
-              </button>
-              <button
-                type="button"
-                className={sessionMode === 'view' ? 'toggle-active' : ''}
-                onClick={() => setSessionMode('view')}
-              >
-                Viewer mode
-              </button>
-            </div>
-          ) : null}
+            <>
+              <div className="access-toggle">
+                <button
+                  type="button"
+                  className={sessionMode === 'edit' ? 'toggle-active' : ''}
+                  onClick={() => setSessionMode('edit')}
+                >
+                  Edit mode
+                </button>
+                <button
+                  type="button"
+                  className={sessionMode === 'view' ? 'toggle-active' : ''}
+                  onClick={() => setSessionMode('view')}
+                >
+                  Viewer mode
+                </button>
+              </div>
+
+              <div className="invite-card">
+                <div>
+                  <p className="eyebrow">Invite Link</p>
+                  <h2>Allow one reviewer in</h2>
+                  <p className="panel-note">
+                    Generate a shareable link for this document. The link unlocks the
+                    single viewer slot and keeps the reviewer read-only.
+                  </p>
+                </div>
+
+                <div className="invite-actions">
+                  <button
+                    className="secondary-button"
+                    disabled={isGeneratingInvite}
+                    onClick={() => void handleGenerateInvite()}
+                    type="button"
+                  >
+                    {isGeneratingInvite
+                      ? 'Generating...'
+                      : viewerInvite?.token
+                        ? 'Regenerate link'
+                        : 'Create invite link'}
+                  </button>
+                  <button
+                    className="primary-button"
+                    disabled={!inviteLink}
+                    onClick={() => void handleCopyInvite()}
+                    type="button"
+                  >
+                    Copy link
+                  </button>
+                </div>
+
+                {inviteLink ? (
+                  <label className="invite-link-field">
+                    Shareable link
+                    <input readOnly value={inviteLink} />
+                  </label>
+                ) : null}
+
+                {viewerInvite?.createdAt ? (
+                  <p className="panel-note">
+                    Generated {new Date(viewerInvite.createdAt).toLocaleString()}
+                  </p>
+                ) : null}
+
+                {inviteFeedback ? <p className="invite-feedback">{inviteFeedback}</p> : null}
+                {inviteError ? <p className="join-error">{inviteError}</p> : null}
+              </div>
+            </>
+          ) : (
+            <p className="panel-note">
+              You joined through a reviewer invite link. Comments stay enabled while
+              editing remains locked to the file owner.
+            </p>
+          )}
         </div>
       </section>
 
