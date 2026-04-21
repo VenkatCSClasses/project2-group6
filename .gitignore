@@ -1,3 +1,4 @@
-# Ignore dependency installs in word-processor
+node_modules
 word-processor/node_modules/
 lexical-test/node_modules/
+node_modules
