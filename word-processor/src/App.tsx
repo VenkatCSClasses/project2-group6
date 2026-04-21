@@ -2,57 +2,94 @@ import { type YooptaContentValue } from '@yoopta/editor';
 import Paragraph from '@yoopta/paragraph';
 import Headings from '@yoopta/headings';
 import { Bold, Italic, Underline, Strike, CodeMark, Highlight } from '@yoopta/marks';
-import { useMemo, useState, useRef } from 'react';
-import YooptaEditor, { createYooptaEditor, Blocks, Marks, useYooptaEditor, buildBlockData } from '@yoopta/editor';
-import { FloatingToolbar, FloatingBlockActions, BlockOptions, SlashCommandMenu, useBlockActions } from '@yoopta/ui';
+import { useMemo, useState, useRef, useCallback, type ReactNode } from 'react';
+import YooptaEditor, {
+  createYooptaEditor,
+  Blocks,
+  Marks,
+  useYooptaEditor,
+  buildBlockData,
+  type RenderBlockProps,
+} from '@yoopta/editor';
+import {
+  FloatingBlockActions,
+  BlockOptions,
+  SlashCommandMenu,
+  ActionMenuList,
+  useBlockActions,
+} from '@yoopta/ui';
+import { BlockDndContext, SortableBlock, DragHandle } from '@yoopta/ui/block-dnd';
 import PublishToWordPress from './publish';
+import './App.css';
 
 const PLUGINS = [Paragraph, Headings.HeadingOne, Headings.HeadingTwo, Headings.HeadingThree];
 const MARKS = [Bold, Italic, Underline, Strike, CodeMark, Highlight];
 
-// Floating toolbar for text formatting
-function MyToolbar() {
+// Sticky toolbar that stays visible while editing.
+function FixedToolbar() {
   const editor = useYooptaEditor();
+  const turnIntoRef = useRef<HTMLButtonElement>(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+
+  const markButtons: Array<{ type: string; label: string; title: string }> = [
+    { type: 'bold', label: 'B', title: 'Bold' },
+    { type: 'italic', label: 'I', title: 'Italic' },
+    { type: 'underline', label: 'U', title: 'Underline' },
+    { type: 'strike', label: 'S', title: 'Strikethrough' },
+    { type: 'code', label: '</>', title: 'Code' },
+    { type: 'highlight', label: 'H', title: 'Highlight' },
+  ];
 
   return (
-    <FloatingToolbar>
-      <FloatingToolbar.Content>
-        <FloatingToolbar.Group>
-          {editor.formats.bold && (
-            <FloatingToolbar.Button
-              onClick={() => Marks.toggle(editor, { type: 'bold' })}
-              active={Marks.isActive(editor, { type: 'bold' })}
-              title="Bold">
-              B
-            </FloatingToolbar.Button>
-          )}
-          {editor.formats.italic && (
-            <FloatingToolbar.Button
-              onClick={() => Marks.toggle(editor, { type: 'italic' })}
-              active={Marks.isActive(editor, { type: 'italic' })}
-              title="Italic">
-              I
-            </FloatingToolbar.Button>
-          )}
-          {editor.formats.underline && (
-            <FloatingToolbar.Button
-              onClick={() => Marks.toggle(editor, { type: 'underline' })}
-              active={Marks.isActive(editor, { type: 'underline' })}
-              title="underline">
-              U
-            </FloatingToolbar.Button>
-          )}
-          {editor.formats.strike && (
-            <FloatingToolbar.Button
-              onClick={() => Marks.toggle(editor, { type: 'strike' })}
-              active={Marks.isActive(editor, { type: 'strike' })}
-              title="strike">
-              S
-            </FloatingToolbar.Button>
-          )}
-        </FloatingToolbar.Group>
-      </FloatingToolbar.Content>
-    </FloatingToolbar>
+    <>
+      <div className="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+        <button
+          ref={turnIntoRef}
+          type="button"
+          className="editor-toolbar-button editor-toolbar-turn-into"
+          onClick={() => setActionMenuOpen((prev) => !prev)}>
+          Turn into
+        </button>
+
+        <span className="editor-toolbar-separator" />
+
+        {markButtons.map((button) => {
+          if (!editor.formats[button.type]) return null;
+
+          return (
+            <button
+              key={button.type}
+              type="button"
+              className={`editor-toolbar-button ${
+                Marks.isActive(editor, { type: button.type }) ? 'is-active' : ''
+              }`}
+              onClick={() => Marks.toggle(editor, { type: button.type })}
+              title={button.title}>
+              {button.label}
+            </button>
+          );
+        })}
+
+        <span className="editor-toolbar-separator" />
+
+        <button
+          type="button"
+          className="editor-toolbar-button"
+          onClick={() => Marks.clear(editor)}
+          title="Clear formatting">
+          Clear
+        </button>
+      </div>
+
+      <ActionMenuList
+        open={actionMenuOpen}
+        onOpenChange={setActionMenuOpen}
+        anchor={turnIntoRef.current}
+        view="small"
+        placement="bottom-start">
+        <ActionMenuList.Content />
+      </ActionMenuList>
+    </>
   );
 }
 
@@ -61,10 +98,17 @@ function MyFloatingBlockActions() {
   const editor = useYooptaEditor();
   const { duplicateBlock, copyBlockLink, deleteBlock } = useBlockActions();
   const [blockOptionsOpen, setBlockOptionsOpen] = useState(false);
-  const dragHandleRef = useRef<HTMLButtonElement>(null);
+  const optionsButtonRef = useRef<HTMLButtonElement>(null);
+  const turnIntoRef = useRef<HTMLButtonElement>(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+
+  const onActionMenuOpenChange = (open: boolean) => {
+    setActionMenuOpen(open);
+    if (!open) setBlockOptionsOpen(false);
+  };
 
   return (
-    <FloatingBlockActions frozen={blockOptionsOpen}>
+    <FloatingBlockActions frozen={blockOptionsOpen || actionMenuOpen}>
       {({ blockId }: { blockId?: string | null }) => (
         <>
           <FloatingBlockActions.Button
@@ -75,15 +119,32 @@ function MyFloatingBlockActions() {
             }}>
             +
           </FloatingBlockActions.Button>
+
+          <DragHandle blockId={blockId ?? null} asChild>
+            <FloatingBlockActions.Button title="Drag to reorder">
+              ::
+            </FloatingBlockActions.Button>
+          </DragHandle>
+
           <FloatingBlockActions.Button
-            ref={dragHandleRef}
+            ref={optionsButtonRef}
+            title="Block options"
             onClick={() => setBlockOptionsOpen(true)}>
-            ⋮⋮
+            ...
           </FloatingBlockActions.Button>
 
-          <BlockOptions open={blockOptionsOpen} onOpenChange={setBlockOptionsOpen} anchor={dragHandleRef.current}>
+          <BlockOptions open={blockOptionsOpen} onOpenChange={setBlockOptionsOpen} anchor={optionsButtonRef.current}>
             <BlockOptions.Content>
               <BlockOptions.Group>
+                <BlockOptions.Item
+                  ref={turnIntoRef}
+                  disabled={!blockId}
+                  keepOpen
+                  onSelect={() => {
+                    if (blockId) setActionMenuOpen(true);
+                  }}>
+                  Turn into
+                </BlockOptions.Item>
                 <BlockOptions.Item
                   disabled={!blockId}
                   onSelect={() => {
@@ -109,6 +170,16 @@ function MyFloatingBlockActions() {
               </BlockOptions.Group>
             </BlockOptions.Content>
           </BlockOptions>
+
+          <ActionMenuList
+            open={actionMenuOpen}
+            onOpenChange={onActionMenuOpenChange}
+            anchor={turnIntoRef.current}
+            blockId={blockId ?? null}
+            view="small"
+            placement="right-start">
+            <ActionMenuList.Content />
+          </ActionMenuList>
         </>
       )}
     </FloatingBlockActions>
@@ -117,9 +188,9 @@ function MyFloatingBlockActions() {
 
 export default function Editor() {
   const editor = useMemo(() => {
-    const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor — Demo Document' }] }] } as any);
+    const heading = buildBlockData({ type: 'HeadingOne', value: [{ children: [{ text: 'Yoopta Editor - Demo Document' }] }] } as any);
     const para1 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'This is a demo document showing Paragraphs, Headings and Marks.' }] }] } as any);
-    const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Try selecting text and using the floating toolbar to apply Bold, Italic, Underline, Strike or Highlight.' }] }] } as any);
+    const para2 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Use the fixed toolbar above to apply Bold, Italic, Underline, Strike, Code, and Highlight formatting.' }] }] } as any);
     const para3 = buildBlockData({ type: 'Paragraph', value: [{ children: [{ text: 'Type / to open the slash command menu and insert blocks.' }] }] } as any);
 
     const initial = {} as YooptaContentValue;
@@ -135,23 +206,54 @@ export default function Editor() {
     });
   }, []);
 
-  return (
-    <>
-      <YooptaEditor
-        editor={editor}
-        onChange={(value) => console.log(value)}
-        autoFocus
-        placeholder="Type / to open menu"
-        style={{ width: 750 }}>
-        <MyToolbar />
-        <MyFloatingBlockActions />
-        <SlashCommandMenu />
-      </YooptaEditor>
+  const renderBlock = useCallback(
+    ({ children, blockId }: RenderBlockProps) => (
+      <SortableBlock id={blockId} useDragHandle>
+        {children}
+      </SortableBlock>
+    ),
+    [],
+  );
 
-      <div style={{ width: 750, display: 'flex', justifyContent: 'flex-end' }}>
+  return (
+    <div className="editor-shell">
+      <BlockDndContext editor={editor}>
+        <YooptaEditor
+          editor={editor}
+          onChange={(value) => console.log(value)}
+          autoFocus
+          placeholder="Type / to open menu"
+          className="editor-surface"
+          renderBlock={renderBlock}>
+          <FixedToolbar />
+          <MyFloatingBlockActions />
+
+          <SlashCommandMenu>
+            {({ items }: { items: Array<{ id: string; title: string; description?: string; icon?: ReactNode }> }) => (
+              <SlashCommandMenu.Content>
+                <SlashCommandMenu.List>
+                  <SlashCommandMenu.Empty>No blocks found</SlashCommandMenu.Empty>
+                  {items.map((item: { id: string; title: string; description?: string; icon?: ReactNode }) => (
+                    <SlashCommandMenu.Item
+                      key={item.id}
+                      value={item.id}
+                      title={item.title}
+                      description={item.description}
+                      icon={item.icon}
+                    />
+                  ))}
+                </SlashCommandMenu.List>
+                <SlashCommandMenu.Footer />
+              </SlashCommandMenu.Content>
+            )}
+          </SlashCommandMenu>
+        </YooptaEditor>
+      </BlockDndContext>
+
+      <div className="editor-publish-row">
         <PublishToWordPress getSourceValue={() => editor.getEditorValue()} />
       </div>
-    </>
+    </div>
   );
 }
 
