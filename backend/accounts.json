@@ -414,6 +414,34 @@
       },
       "comments": [
         {
+          "id": "64f73345-e5a3-4b32-bf32-36ad26c158d4",
+          "documentId": "d0d7f77b-a7b1-47fb-abe5-1f8513708726",
+          "text": "Comment",
+          "authorId": "1d1ae368-295b-4523-8d5f-bccb9decedc2",
+          "authorName": "suryash",
+          "authorRole": "owner",
+          "resolved": false,
+          "createdAt": "2026-04-22T11:26:07.507Z",
+          "selectedText": "ng toolbar to format text.",
+          "commentAnchor": {
+            "blockId": "e5207367-ef4b-4258-11aa-00e6c3deb42d",
+            "anchor": {
+              "path": [
+                0,
+                0
+              ],
+              "offset": 34
+            },
+            "focus": {
+              "path": [
+                0,
+                0
+              ],
+              "offset": 43
+            }
+          }
+        },
+        {
           "id": "637eac13-2816-4fd7-ad6b-a1c8defea530",
           "documentId": "d0d7f77b-a7b1-47fb-abe5-1f8513708726",
           "text": "commenting",
@@ -478,7 +506,12 @@
       ],
       "updatedAt": "2026-04-22T11:08:39.815Z",
       "sessions": {
-        "owner": null,
+        "owner": {
+          "sessionId": "1d1ae368-295b-4523-8d5f-bccb9decedc2",
+          "username": "suryash",
+          "displayName": "suryash",
+          "lastSeenAt": "2026-04-22T11:27:00.188Z"
+        },
         "viewers": []
       }
     }
