@@ -1,0 +1,105 @@
+{
+  "users": [
+    {
+      "username": "suryash",
+      "password": "1234",
+      "documents": {
+        "writer": [
+          {
+            "id": "7706c51f-2283-44df-9282-6d7f6891733a",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-22T14:49:54.084Z"
+          }
+        ],
+        "editor": []
+      }
+    }
+  ],
+  "documentsStore": {
+    "7706c51f-2283-44df-9282-6d7f6891733a": {
+      "id": "7706c51f-2283-44df-9282-6d7f6891733a",
+      "title": "Untitled Document",
+      "ownerUsername": "suryash",
+      "sharedWith": [],
+      "invite": {
+        "token": "3a15003d-3961-4cde-b069-dba5188e0ef8",
+        "createdAt": "2026-04-22T14:49:58.198Z",
+        "lastUsedAt": null
+      },
+      "content": {
+        "7a9611b7-053a-814d-53d9-4b56de9a8ae1": {
+          "id": "7a9611b7-053a-814d-53d9-4b56de9a8ae1",
+          "value": [
+            {
+              "id": "460d2559-ba49-9d8c-21f4-37b9f47f247f",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Untitled Document"
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "HeadingOne",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "46d25de5-9bd6-1e10-d636-76b88fe23f75": {
+          "id": "46d25de5-9bd6-1e10-d636-76b88fe23f75",
+          "value": [
+            {
+              "id": "f695b3a6-01c8-6529-24d2-9f4da604b89f",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Start writing here. Use the floating toolbar to format text."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "9ae52a54-6c74-e4a4-3fc3-1258ee39ceea": {
+          "id": "9ae52a54-6c74-e4a4-3fc3-1258ee39ceea",
+          "value": [
+            {
+              "id": "d5c9b5b3-2578-da74-ba10-58911fa005cb",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Type / to open the slash menu and insert new blocks."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        }
+      },
+      "comments": [],
+      "updatedAt": "2026-04-22T14:49:54.084Z",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    }
+  }
+}
