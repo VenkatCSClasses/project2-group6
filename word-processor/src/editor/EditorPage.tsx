@@ -123,7 +123,7 @@ export default function EditorPage() {
     [location.search],
   );
   const inviteLink = viewerInvite?.token
-    ? `/editor/${documentId}?invite=${viewerInvite.token}`
+    ? `${window.location.origin}/editor/${documentId}?invite=${viewerInvite.token}`
     : null;
 
   useEffect(() => {

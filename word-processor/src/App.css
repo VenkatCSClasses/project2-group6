@@ -429,7 +429,7 @@
   min-height: 72vh;
 }
 
-/* ─── Dashboard ─────────────────────────────────────────────────────────── */
+/* ─── Dashboard (styles are inline in dashboard.tsx) ───────────────────── */
 
 .dash-shell {
   min-height: 100vh;
