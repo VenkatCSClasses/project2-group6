@@ -54,14 +54,14 @@ function writeData(data) {
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
 }
 
-function createDocumentRecord({ id, title, ownerUsername, updatedAt }) {
+function createDocumentRecord({ id, title, ownerUsername, updatedAt, content }) {
   return {
     id,
     title: title || "Untitled Document",
     ownerUsername,
     sharedWith: [],
     invite: createInviteState(),
-    content: {},
+    content: content && typeof content === "object" ? content : {},
     comments: [],
     updatedAt: updatedAt || nowIso(),
     sessions: {
@@ -303,7 +303,7 @@ router.get("/documents", (req, res) => {
 });
 
 router.post("/documents", (req, res) => {
-  const { username, title } = req.body;
+  const { username, title, content } = req.body;
   const data = readData();
   const user = data.users.find((entry) => entry.username === username);
 
@@ -316,6 +316,7 @@ router.post("/documents", (req, res) => {
     id,
     title,
     ownerUsername: username,
+    content,
   });
 
   writeData(data);

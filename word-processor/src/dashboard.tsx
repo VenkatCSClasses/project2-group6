@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GrDocumentText } from "react-icons/gr";
+import { createStarterContent } from "./editor/createStarterContent";
 
 type DocumentSummary = {
   id: string;
@@ -38,6 +39,7 @@ export default function Dashboard() {
 
   const createNewDoc = async () => {
     const username = localStorage.getItem("username");
+    const title = "Untitled Document";
 
     if (!username) {
       navigate("/login");
@@ -47,7 +49,11 @@ export default function Dashboard() {
     const res = await fetch("/api/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, title: "Untitled Document" }),
+      body: JSON.stringify({
+        username,
+        title,
+        content: createStarterContent(title),
+      }),
     });
 
     const data = await res.json();

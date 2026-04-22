@@ -29,15 +29,14 @@
             "id": "5",
             "title": "Old Article",
             "updatedAt": "2026-04-01"
-          }
-        ],
-        "editor": [
+          },
           {
             "id": "6",
             "title": "Editor Feedback",
             "updatedAt": "2026-04-16"
           }
-        ]
+        ],
+        "editor": []
       }
     },
     {
@@ -46,14 +45,9 @@
       "documents": {
         "writer": [
           {
-            "id": "1",
-            "title": "My First Article",
-            "updatedAt": "2026-04-10"
-          },
-          {
-            "id": "2",
-            "title": "Interview Notes",
-            "updatedAt": "2026-04-12"
+            "id": "7",
+            "title": "Editorial Calendar",
+            "updatedAt": "2026-04-17"
           }
         ],
         "editor": [
@@ -61,11 +55,6 @@
             "id": "6",
             "title": "Editor Feedback",
             "updatedAt": "2026-04-16"
-          },
-          {
-            "id": "7",
-            "title": "Editorial Calendar",
-            "updatedAt": "2026-04-17"
           }
         ]
       }
@@ -77,6 +66,173 @@
         "writer": [],
         "editor": []
       }
+    },
+    {
+      "username": "suryash",
+      "password": "1234",
+      "documents": {
+        "writer": [
+          {
+            "id": "3a12dff1-4470-4f69-969a-90a2890a1f71",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-21T21:49:17.275Z"
+          }
+        ],
+        "editor": []
+      }
     }
-  ]
+  ],
+  "documentsStore": {
+    "1": {
+      "id": "1",
+      "title": "My First Article",
+      "ownerUsername": "writer1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-10",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "2": {
+      "id": "2",
+      "title": "Interview Notes",
+      "ownerUsername": "writer1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-12",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "3": {
+      "id": "3",
+      "title": "Venkat Article",
+      "ownerUsername": "writer1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-14",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "4": {
+      "id": "4",
+      "title": "Another Article",
+      "ownerUsername": "writer1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-15",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "5": {
+      "id": "5",
+      "title": "Old Article",
+      "ownerUsername": "writer1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-01",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "6": {
+      "id": "6",
+      "title": "Editor Feedback",
+      "ownerUsername": "writer1",
+      "sharedWith": [
+        "editor1"
+      ],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-16",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "7": {
+      "id": "7",
+      "title": "Editorial Calendar",
+      "ownerUsername": "editor1",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-17",
+      "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "3a12dff1-4470-4f69-969a-90a2890a1f71": {
+      "id": "3a12dff1-4470-4f69-969a-90a2890a1f71",
+      "title": "Untitled Document",
+      "ownerUsername": "suryash",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {},
+      "comments": [],
+      "updatedAt": "2026-04-21T21:49:17.275Z",
+      "sessions": {
+        "owner": {
+          "sessionId": "8438976a-9e67-4f77-b04b-acf9f84fe1f8",
+          "username": "suryash",
+          "displayName": "suryash",
+          "lastSeenAt": "2026-04-21T21:49:21.516Z"
+        },
+        "viewers": []
+      }
+    }
+  }
 }
