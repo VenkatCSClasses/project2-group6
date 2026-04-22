@@ -1,22 +1,23 @@
-import { useEffect, useState } from 'react';
-import type { AccessLevel } from '../collaboration/types';
+import { useEffect, useRef, useState } from 'react';
 import { createComment, listComments, resolveComment } from './commentsApi';
 import type { DocumentComment } from './types';
 
 export function CommentsPanel({
   documentId,
   sessionId,
-  accessLevel,
   canResolveComments,
+  onAfterResolve,
 }: {
   documentId: string;
   sessionId: string;
-  accessLevel: AccessLevel;
   canResolveComments: boolean;
+  onAfterResolve?: (commentId: string) => void;
 }) {
   const [comments, setComments] = useState<DocumentComment[]>([]);
   const [text, setText] = useState('');
-  const [sectionLabel, setSectionLabel] = useState('');
+  const [focusedCommentId, setFocusedCommentId] = useState<string | null>(null);
+  const focusTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cardRefs = useRef<Map<string, HTMLElement>>(new Map());
 
   useEffect(() => {
     let isMounted = true;
@@ -45,8 +46,38 @@ export function CommentsPanel({
     };
   }, [documentId, sessionId]);
 
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const span = (e.target as HTMLElement).closest('[data-comment-id]');
+      if (!span) return;
+      const commentId = span.getAttribute('data-comment-id');
+      if (!commentId) return;
+
+      const card = cardRefs.current.get(commentId);
+      card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      setFocusedCommentId(commentId);
+      if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+      focusTimerRef.current = setTimeout(() => setFocusedCommentId(null), 2000);
+    };
+
+    document.addEventListener('click', handler);
+    return () => {
+      document.removeEventListener('click', handler);
+      if (focusTimerRef.current) clearTimeout(focusTimerRef.current);
+    };
+  }, []);
+
+  function scrollToHighlight(commentId: string) {
+    const span = window.document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!span) return;
+    span.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    span.classList.add('comment-highlight-flash');
+    setTimeout(() => span.classList.remove('comment-highlight-flash'), 1600);
+  }
+
   async function handleAdd() {
-    if (accessLevel !== 'viewer' || !text.trim()) {
+    if (!text.trim()) {
       return;
     }
 
@@ -54,12 +85,10 @@ export function CommentsPanel({
       documentId,
       sessionId,
       text,
-      sectionLabel,
     });
 
     setComments((prev) => [newComment, ...prev]);
     setText('');
-    setSectionLabel('');
   }
 
   async function handleResolve(commentId: string) {
@@ -69,6 +98,7 @@ export function CommentsPanel({
         comment.id === commentId ? { ...comment, resolved: true } : comment,
       ),
     );
+    onAfterResolve?.(commentId);
   }
 
   return (
@@ -81,34 +111,19 @@ export function CommentsPanel({
         <span className="count-badge">{comments.length}</span>
       </div>
 
-      {accessLevel === 'viewer' ? (
-        <div className="comment-form">
-          <label>
-            Section reference
-            <input
-              value={sectionLabel}
-              onChange={(event) => setSectionLabel(event.target.value)}
-              placeholder="Lead, quote section, ending..."
-            />
-          </label>
-          <label>
-            Reviewer note
-            <textarea
-              value={text}
-              onChange={(event) => setText(event.target.value)}
-              placeholder="Leave feedback for the editor"
-            />
-          </label>
-          <button className="primary-button" onClick={handleAdd}>
-            Add comment
-          </button>
-        </div>
-      ) : (
-        <p className="panel-note">
-          The active viewer leaves comments here. The file owner can resolve them
-          after updating the draft.
-        </p>
-      )}
+      <div className="comment-form">
+        <label>
+          General comment
+          <textarea
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            placeholder="Leave feedback for the editor (or highlight text in the document to anchor a comment)"
+          />
+        </label>
+        <button className="primary-button" onClick={() => void handleAdd()}>
+          Add comment
+        </button>
+      </div>
 
       <div className="comment-list">
         {comments.length === 0 ? (
@@ -117,14 +132,24 @@ export function CommentsPanel({
           comments.map((comment) => (
             <article
               key={comment.id}
-              className={`comment-card ${comment.resolved ? 'is-resolved' : ''}`}
+              ref={(el) => {
+                if (el) cardRefs.current.set(comment.id, el);
+                else cardRefs.current.delete(comment.id);
+              }}
+              className={`comment-card ${comment.resolved ? 'is-resolved' : ''} ${focusedCommentId === comment.id ? 'is-focused' : ''}`}
             >
               <div className="comment-card-header">
                 <strong>{comment.authorName}</strong>
                 <span>{new Date(comment.createdAt).toLocaleString()}</span>
               </div>
-              {comment.sectionLabel ? (
-                <p className="comment-section">{comment.sectionLabel}</p>
+              {comment.selectedText ? (
+                <blockquote
+                  className="comment-quote comment-quote-link"
+                  title="Click to locate in document"
+                  onClick={() => scrollToHighlight(comment.id)}
+                >
+                  &ldquo;{comment.selectedText}&rdquo;
+                </blockquote>
               ) : null}
               <p>{comment.text}</p>
               {!comment.resolved && canResolveComments ? (

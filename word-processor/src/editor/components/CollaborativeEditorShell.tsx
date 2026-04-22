@@ -5,6 +5,7 @@ import YooptaEditor, {
   useYooptaEditor,
   type YooptaContentValue,
 } from '@yoopta/editor';
+import { Editor, Text, Transforms } from 'slate';
 import { RemoteCursors } from '@yoopta/collaboration';
 import {
   BlockOptions,
@@ -14,6 +15,13 @@ import {
 } from '@yoopta/ui';
 import { createCollaborativeEditor } from '../collaboration/createCollaborativeEditor';
 import { createBaseEditor } from '../createBaseEditor';
+import { FloatingCommentButton } from '../comments/FloatingCommentButton';
+import type { CommentAnchor } from '../comments/types';
+
+type CommentLeaf = {
+  text: string;
+  commentHighlight?: { commentId: string; deleted?: boolean };
+};
 
 function EditorToolbar() {
   const editor = useYooptaEditor();
@@ -97,6 +105,8 @@ export function CollaborativeEditorShell({
   savedContent,
   readOnly,
   onChange,
+  onComment,
+  resolvedCommentIds = [],
 }: {
   documentId: string;
   currentUser: { id: string; name: string; color: string; avatar?: string };
@@ -104,9 +114,17 @@ export function CollaborativeEditorShell({
   savedContent: YooptaContentValue;
   readOnly: boolean;
   onChange?: (value: YooptaContentValue) => Promise<void> | void;
+  onComment?: (
+    commentId: string,
+    text: string,
+    selectedText: string,
+    anchor?: CommentAnchor,
+  ) => void | Promise<void>;
+  resolvedCommentIds?: string[];
 }) {
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isRealtimeEnabled = Boolean(websocketUrl);
+  const seenResolvedRef = useRef<Set<string>>(new Set());
 
   const editor = useMemo(() => {
     if (!isRealtimeEnabled || !websocketUrl) {
@@ -158,6 +176,54 @@ export function CollaborativeEditorShell({
     [],
   );
 
+  // When a comment is resolved, strip its marks from all per-block Slate editors.
+  // Ghost text (deleted:true) is physically removed; normal highlights are unmarked.
+  useEffect(() => {
+    const newlyResolved = resolvedCommentIds.filter(
+      (id) => !seenResolvedRef.current.has(id),
+    );
+
+    if (newlyResolved.length === 0) return;
+
+    for (const resolvedId of newlyResolved) {
+      seenResolvedRef.current.add(resolvedId);
+    }
+
+    // Yoopta maintains a separate Slate editor per block in blockEditorsMap.
+    for (const slateEditor of Object.values(editor.blockEditorsMap)) {
+      const toDelete: import('slate').Path[] = [];
+
+      for (const [node, path] of Editor.nodes(slateEditor, {
+        at: [],
+        match: (n) => {
+          const leaf = n as CommentLeaf;
+          return (
+            Text.isText(n) &&
+            !!leaf.commentHighlight &&
+            newlyResolved.includes(leaf.commentHighlight.commentId)
+          );
+        },
+      })) {
+        const leaf = node as CommentLeaf;
+        if (leaf.commentHighlight?.deleted) {
+          toDelete.push(path);
+        } else {
+          Transforms.unsetNodes(slateEditor, 'commentHighlight', { at: path });
+        }
+      }
+
+      for (const path of [...toDelete].reverse()) {
+        Transforms.removeNodes(slateEditor, { at: path });
+      }
+    }
+
+    // Persist the cleaned-up content.
+    if (onChange) {
+      const updated = editor.getEditorValue();
+      void Promise.resolve(onChange(updated));
+    }
+  }, [resolvedCommentIds, editor, onChange]);
+
   const handleChange = readOnly
     ? undefined
     : (value: YooptaContentValue) => {
@@ -185,6 +251,9 @@ export function CollaborativeEditorShell({
       {!readOnly ? <EditorToolbar /> : null}
       {!readOnly ? <EditorBlockActions /> : null}
       {!readOnly ? <SlashCommandMenu /> : null}
+      {onComment ? (
+        <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
+      ) : null}
       {isRealtimeEnabled ? <RemoteCursors /> : null}
     </YooptaEditor>
   );

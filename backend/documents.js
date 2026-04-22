@@ -577,6 +577,25 @@ router.put("/documents/:id", (req, res) => {
   res.json(documentResponse(record));
 });
 
+router.patch("/documents/:id/rename", (req, res) => {
+  const data = readData();
+  const record = getDocumentOr404(data, req.params.id, res);
+  if (!record) return;
+
+  const username = String(req.body.username || "").trim();
+  if (record.ownerUsername !== username) {
+    return res.status(403).json({ error: "Only the owner can rename the document." });
+  }
+
+  const title = String(req.body.title || "").trim();
+  if (!title) return res.status(400).json({ error: "Title cannot be empty." });
+
+  record.title = title;
+  record.updatedAt = nowIso();
+  writeData(data);
+  res.json({ id: record.id, title: record.title, updatedAt: record.updatedAt });
+});
+
 router.get("/documents/:id/comments", (req, res) => {
   const data = readData();
   const record = getDocumentOr404(data, req.params.id, res);
@@ -628,6 +647,8 @@ router.post("/documents/:id/comments", (req, res) => {
     sectionLabel: String(req.body.sectionLabel || "").trim() || undefined,
     resolved: false,
     createdAt: nowIso(),
+    selectedText: String(req.body.selectedText || "").trim() || undefined,
+    commentAnchor: req.body.commentAnchor || null,
   };
 
   record.comments.unshift(comment);

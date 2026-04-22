@@ -1,3 +1,9 @@
+export type CommentAnchor = {
+  blockId: string;
+  anchor: { path: number[]; offset: number };
+  focus: { path: number[]; offset: number };
+};
+
 export type DocumentComment = {
   id: string;
   documentId: string;
@@ -8,6 +14,8 @@ export type DocumentComment = {
   sectionLabel?: string;
   resolved: boolean;
   createdAt: string;
+  selectedText?: string;
+  commentAnchor?: CommentAnchor;
 };
 
 export type CreateCommentInput = {
@@ -15,4 +23,6 @@ export type CreateCommentInput = {
   sessionId: string;
   text: string;
   sectionLabel?: string;
+  selectedText?: string;
+  commentAnchor?: CommentAnchor;
 };

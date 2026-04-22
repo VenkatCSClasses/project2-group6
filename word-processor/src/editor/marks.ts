@@ -6,6 +6,7 @@ import {
   Strike,
   Underline,
 } from '@yoopta/marks';
+import { CommentHighlightMark } from './comments/commentMarks';
 
 export const MARKS = [
   Bold,
@@ -14,4 +15,5 @@ export const MARKS = [
   Strike,
   CodeMark,
   Highlight,
+  CommentHighlightMark,
 ];

@@ -16,6 +16,8 @@ import type {
 import { CollaborativeEditorShell } from "./components/CollaborativeEditorShell";
 import { getDocument, saveDocument, updateSharedViewers } from "./documents/documentApi";
 import type { EditorDocument } from "./documents/types";
+import { createComment } from "./comments/commentsApi";
+import type { CommentAnchor } from "./comments/types";
 import {
   claimSession,
   generateViewerInvite,
@@ -111,6 +113,7 @@ export default function EditorPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
+  const [resolvedCommentIds, setResolvedCommentIds] = useState<string[]>([]);
   const config = useMemo(() => getCollaborationConfig(), []);
   const releaseRef = useRef<ActiveSession | null>(null);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -120,7 +123,7 @@ export default function EditorPage() {
     [location.search],
   );
   const inviteLink = viewerInvite?.token
-    ? `${window.location.origin}/editor/${documentId}?invite=${viewerInvite.token}`
+    ? `/editor/${documentId}?invite=${viewerInvite.token}`
     : null;
 
   useEffect(() => {
@@ -151,25 +154,34 @@ export default function EditorPage() {
       return;
     }
 
+    let cancelled = false;
+
     const initialize = async () => {
       try {
         const activeSession = await claimSession({
           documentId,
           username,
         });
+        if (cancelled) return;
         setSession(activeSession);
         setSessionMode(activeSession.accessLevel === "owner" ? "edit" : "view");
 
         const nextDocument = await getDocument(documentId, activeSession.sessionId);
+        if (cancelled) return;
         setDocument(nextDocument);
         setPresence(nextDocument.presence);
         setSharedUsersInput(nextDocument.sharedWith.join(", "));
       } catch (error) {
+        if (cancelled) return;
         setErrorMessage(error instanceof Error ? error.message : "Unable to open document.");
       }
     };
 
     void initialize();
+
+    return () => {
+      cancelled = true;
+    };
   }, [documentId, inviteToken, navigate]);
 
   useEffect(() => {
@@ -305,6 +317,26 @@ export default function EditorPage() {
     }
   }
 
+  async function handleCommentCreated(
+    _commentId: string,
+    text: string,
+    selectedText: string,
+    anchor?: CommentAnchor,
+  ) {
+    if (!session) return;
+    await createComment({
+      documentId: session.documentId,
+      sessionId: session.sessionId,
+      text,
+      selectedText,
+      commentAnchor: anchor,
+    });
+  }
+
+  function handleAfterResolve(commentId: string) {
+    setResolvedCommentIds((prev) => [...prev, commentId]);
+  }
+
   async function handleSave(nextContent: YooptaContentValue) {
     if (!session) {
       return;
@@ -387,7 +419,18 @@ export default function EditorPage() {
     }
 
     try {
-      await navigator.clipboard.writeText(inviteLink);
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(inviteLink);
+      } else {
+        const el = window.document.createElement("textarea");
+        el.value = inviteLink;
+        el.style.cssText = "position:fixed;opacity:0";
+        window.document.body.appendChild(el);
+        el.focus();
+        el.select();
+        window.document.execCommand("copy");
+        window.document.body.removeChild(el);
+      }
       setInviteFeedback("Invite link copied.");
       setInviteError(null);
     } catch (error) {
@@ -566,6 +609,8 @@ export default function EditorPage() {
             savedContent={document.content}
             readOnly={!canEdit}
             onChange={canEdit ? queueSave : undefined}
+            onComment={handleCommentCreated}
+            resolvedCommentIds={resolvedCommentIds}
           />
         </section>
 
@@ -584,8 +629,8 @@ export default function EditorPage() {
           <CommentsPanel
             documentId={document.id}
             sessionId={session.sessionId}
-            accessLevel={session.accessLevel}
             canResolveComments={isOwner}
+            onAfterResolve={handleAfterResolve}
           />
         </section>
       </section>
