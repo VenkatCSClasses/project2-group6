@@ -1,9 +1,11 @@
-import Editor from './App'; // Import the original Yoopta editor
+
+//import Editor from './App' //Import the original Editor component
 import SearchSidebar from './SearchSidebar';
 import './IntegratedStyles.css';
 import Sources from './Sources';
 import './IntegratedStyles.css';
 import { useState } from 'react';
+import { WordEditor } from './Appv2';
 
 //Define the SourceEntry structure for MLA data
 export type SourceEntry = {
@@ -56,14 +58,21 @@ export default function IntegratedLayout() {
         }
 
         const newSource: SourceEntry = {
-        id: Math.random().toString(36).substr(2, 9),
-        url: data.url,
-        title: guessedTitle,
-        website: guessedWebsite,
-        author: '', // Set to empty so user can fill in the Author later
-        dateAccessed: new Date().toLocaleDateString('en-GB', {
+          id: Math.random().toString(36).substr(2, 9),
+          url: data.url,
+          title: guessedTitle,
+          website: guessedWebsite,
+          author: '', // Set to empty so user can fill in the Author later
+          dateAccessed: new Date().toLocaleDateString('en-GB', {
             day: 'numeric', month: 'short', year: 'numeric'
-        })
+          }),
+          inlineCitation: '',
+          studio: '',
+          volume: '',
+          journal: '',
+          year: '',
+          publisher: '',
+          type: ''
         };
         setSources(prev => [newSource, ...prev]);
     };
@@ -81,7 +90,7 @@ export default function IntegratedLayout() {
         <Sources sourceList={sources} onUpdateSource={updateSource} />   
      </aside>
      <main className="workspace-right">
-       <Editor />
+       <WordEditor />
      </main>
    </div>
  );

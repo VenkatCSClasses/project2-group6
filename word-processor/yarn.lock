@@ -728,6 +728,11 @@
     "@radix-ui/react-primitive" "2.1.3"
     "@radix-ui/react-use-controllable-state" "1.2.2"
 
+"@radix-ui/react-icons@^1.3.0":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-icons/-/react-icons-1.3.2.tgz#09be63d178262181aeca5fb7f7bc944b10a7f441"
+  integrity sha512-fyQIhGDhzfc9pK2kH6Pl9c4BDJGfMkPqkyIgYDthyNYoNg3wVhoJMMh19WS4Up/1KMPFVpNsT2q3WmXn2N1m6g==
+
 "@radix-ui/react-id@1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@radix-ui/react-id/-/react-id-1.1.1.tgz"
@@ -890,6 +895,13 @@
     aria-hidden "^1.2.4"
     react-remove-scroll "^2.6.3"
 
+"@radix-ui/react-separator@1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-separator/-/react-separator-1.1.7.tgz#a18bd7fd07c10fda1bba14f2a3032e7b1a2b3470"
+  integrity sha512-0HEb8R9E8A+jZjvmFCy/J4xhbXy3TV+9XSnGJ3KvTtjlIUy/YQ/p6UYZvi7YbeoeXdyU9+Y3scizK6hkY37baA==
+  dependencies:
+    "@radix-ui/react-primitive" "2.1.3"
+
 "@radix-ui/react-separator@^1.1.0":
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/@radix-ui/react-separator/-/react-separator-1.1.8.tgz#24f871fbf9630af316d0c14cbc7519a6e33aa11e"
@@ -954,6 +966,41 @@
     "@radix-ui/react-primitive" "2.1.3"
     "@radix-ui/react-roving-focus" "1.1.11"
     "@radix-ui/react-use-controllable-state" "1.2.2"
+
+"@radix-ui/react-toggle-group@1.1.11":
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-toggle-group/-/react-toggle-group-1.1.11.tgz#e513d6ffdb07509b400ab5b26f2523747c0d51c1"
+  integrity sha512-5umnS0T8JQzQT6HbPyO7Hh9dgd82NmS36DQr+X/YJ9ctFNCiiQd6IJAYYZ33LUwm8M+taCz5t2ui29fHZc4Y6Q==
+  dependencies:
+    "@radix-ui/primitive" "1.1.3"
+    "@radix-ui/react-context" "1.1.2"
+    "@radix-ui/react-direction" "1.1.1"
+    "@radix-ui/react-primitive" "2.1.3"
+    "@radix-ui/react-roving-focus" "1.1.11"
+    "@radix-ui/react-toggle" "1.1.10"
+    "@radix-ui/react-use-controllable-state" "1.2.2"
+
+"@radix-ui/react-toggle@1.1.10":
+  version "1.1.10"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-toggle/-/react-toggle-1.1.10.tgz#b04ba0f9609599df666fce5b2f38109a197f08cf"
+  integrity sha512-lS1odchhFTeZv3xwHH31YPObmJn8gOg7Lq12inrr0+BH/l3Tsq32VfjqH1oh80ARM3mlkfMic15n0kg4sD1poQ==
+  dependencies:
+    "@radix-ui/primitive" "1.1.3"
+    "@radix-ui/react-primitive" "2.1.3"
+    "@radix-ui/react-use-controllable-state" "1.2.2"
+
+"@radix-ui/react-toolbar@^1.0.4":
+  version "1.1.11"
+  resolved "https://registry.yarnpkg.com/@radix-ui/react-toolbar/-/react-toolbar-1.1.11.tgz#2a71f1d91535788f88145d542159e2faaa561db7"
+  integrity sha512-4ol06/1bLoFu1nwUqzdD4Y5RZ9oDdKeiHIsntug54Hcr1pgaHiPqHFEaXI1IFP/EsOfROQZ8Mig9VTIRza6Tjg==
+  dependencies:
+    "@radix-ui/primitive" "1.1.3"
+    "@radix-ui/react-context" "1.1.2"
+    "@radix-ui/react-direction" "1.1.1"
+    "@radix-ui/react-primitive" "2.1.3"
+    "@radix-ui/react-roving-focus" "1.1.11"
+    "@radix-ui/react-separator" "1.1.7"
+    "@radix-ui/react-toggle-group" "1.1.11"
 
 "@radix-ui/react-tooltip@^1.2.8":
   version "1.2.8"
@@ -1443,7 +1490,7 @@
 
 "@yoopta/editor@^6.0.2":
   version "6.0.2"
-  resolved "https://registry.npmjs.org/@yoopta/editor/-/editor-6.0.2.tgz"
+  resolved "https://registry.yarnpkg.com/@yoopta/editor/-/editor-6.0.2.tgz#67c9d4e70505ea18f9b7f7ac9f5032a5d5184496"
   integrity sha512-Rem9JvpjxNZ1XhSpvsTE13l+rYkZU5ttBTb72UqEknUIqEQRNmQm5AtCPUGmlJW3014TSXNbAwqyBLwTxYH6OQ==
   dependencies:
     eventemitter3 "^5.0.1"
@@ -1507,6 +1554,11 @@
   resolved "https://registry.yarnpkg.com/@yoopta/steps/-/steps-6.0.2.tgz#02a46cf1ff93c39e2997b955eaf54737c27360bf"
   integrity sha512-emwEQZMys9c64i88HT5h5ol+qFVSojniITXAah+VMWxtoKqQnuR3A7hIIhRpDwnP8AVuvlltPUMX+l1FU4FJiA==
 
+"@yoopta/table-of-contents@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@yoopta/table-of-contents/-/table-of-contents-6.0.3.tgz#c55c9bde5a77e43acf91833dffc65ffb4faa2192"
+  integrity sha512-wl22Va3KvJxQy/1NULs4XMMtbp5U3XwlRABLZn00OZ9kABE5DHOyipIdnPE2zDK3jR60GvT1LAx4qaz8zsSMVw==
+
 "@yoopta/table@^6.0.2":
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/@yoopta/table/-/table-6.0.2.tgz#fa1b69712e862c8415091e6573363e0c0037948c"
@@ -1531,10 +1583,10 @@
     copy-to-clipboard "^3.3.3"
     react-rnd "^10.5.2"
 
-"@yoopta/themes-shadcn@^6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@yoopta/themes-shadcn/-/themes-shadcn-6.0.2.tgz#2aab4b3f2dd1cd0b49c87dd05dde14b334df6eec"
-  integrity sha512-SwuDJxkJ8pqkzDy6Iho6AUZ8MWqoo7Q/aQq27+HiPiOF1eAZUVbGqzlHHhKeRfv+8uXsQBiuJz7bypDNewIOPQ==
+"@yoopta/themes-shadcn@^6.0.3":
+  version "6.0.3"
+  resolved "https://registry.yarnpkg.com/@yoopta/themes-shadcn/-/themes-shadcn-6.0.3.tgz#456b33d793f8894055de74953c4bb7448b9ed444"
+  integrity sha512-Yr67BIqp4WB1XbK/4YAMpj+1uTVIkRxY2mITEFAoe5DkVxqtjQ7tNmt2+wIyUu18OBFG5kGcYryv8zd4su2EtQ==
   dependencies:
     "@radix-ui/react-accordion" "^1.0.0"
     "@radix-ui/react-checkbox" "^1.1.1"
@@ -1555,6 +1607,19 @@
     lucide-react "^0.378.0"
     react-rnd "^10.5.2"
     tailwind-merge "^2.5.4"
+
+"@yoopta/toolbar@^4.9.9":
+  version "4.9.9"
+  resolved "https://registry.yarnpkg.com/@yoopta/toolbar/-/toolbar-4.9.9.tgz#dcdecb92efeb31c6779492a5cb755eff1a907d18"
+  integrity sha512-xYBvLOhve3b1USGbw0d/naMJOa67EuI0xOU08lQmD1Gzdpu+vWsKP+VPh52gPYKbIfmZZcdfZEc4ozykjkwn7w==
+  dependencies:
+    "@floating-ui/react" "^0.26.9"
+    "@radix-ui/react-icons" "^1.3.0"
+    "@radix-ui/react-toolbar" "^1.0.4"
+    lodash.throttle "^4.1.1"
+    lucide-react "^0.469.0"
+    react-colorful "^5.6.1"
+    use-debounce "^10.0.4"
 
 "@yoopta/ui@^6.0.2":
   version "6.0.2"
@@ -2382,6 +2447,11 @@ lodash.merge@^4.6.2:
   resolved "https://registry.npmjs.org/lodash.merge/-/lodash.merge-4.6.2.tgz"
   integrity sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==
 
+lodash.throttle@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
+  integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
+
 lodash@^4.17.21:
   version "4.18.1"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.18.1.tgz"
@@ -2410,6 +2480,16 @@ lucide-react@^0.378.0:
   version "0.378.0"
   resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.378.0.tgz#232acb99c6baedfa90959a2c0dd11327b058bde8"
   integrity sha512-u6EPU8juLUk9ytRcyapkWI18epAv3RU+6+TC23ivjR0e+glWKBobFeSgRwOIJihzktILQuy6E0E80P2jVTDR5g==
+
+lucide-react@^0.469.0:
+  version "0.469.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-0.469.0.tgz#f16936ca6521482fef754a7eabb310e6c68e1482"
+  integrity sha512-28vvUnnKQ/dBwiCQtwJw7QauYnE7yd2Cyp4tTTJpvglX4EMpbflcdBgrgToX2j71B3YvugK/NH3BGUk+E/p/Fw==
+
+lucide-react@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/lucide-react/-/lucide-react-1.8.0.tgz#107f8d8df0914dc5f8d037b948159d6cce86b9f5"
+  integrity sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==
 
 mdast-util-to-hast@^13.0.0:
   version "13.2.1"
@@ -2814,10 +2894,10 @@ shiki@^3.20.0:
     "@shikijs/vscode-textmate" "^10.0.2"
     "@types/hast" "^3.0.4"
 
-slate-dom@^0.119.0:
-  version "0.119.0"
-  resolved "https://registry.npmjs.org/slate-dom/-/slate-dom-0.119.0.tgz"
-  integrity sha512-foc8a2NkE+1SldDIYaoqjhVKupt8RSuvHI868rfYOcypD4we5TT7qunjRKJ852EIRh/Ql8sSTepXgXKOUJnt1w==
+slate-dom@^0.124.1:
+  version "0.124.1"
+  resolved "https://registry.yarnpkg.com/slate-dom/-/slate-dom-0.124.1.tgz#76f58a8e395c44533feba7e1841e6a4c454a0fdc"
+  integrity sha512-D3yVibjLZM4Oj4MmXxOEXbjrlf4wJez3OvGABBNYrAP7gXb0d96tKNtWZ0hGm/5y84idw/LHjZ7W1uTYqFR9rQ==
   dependencies:
     "@juggle/resize-observer" "^3.4.0"
     direction "^1.0.4"
@@ -2827,10 +2907,10 @@ slate-dom@^0.119.0:
     scroll-into-view-if-needed "^3.1.0"
     tiny-invariant "1.3.1"
 
-slate-react@^0.120.0:
-  version "0.120.0"
-  resolved "https://registry.npmjs.org/slate-react/-/slate-react-0.120.0.tgz"
-  integrity sha512-CMEJzozriddBjVmbxNvc2erCkXUuEkgdXIdM+jEMvxWMb51z0zhIVzgoxbGprVpzwBXY8Kv7aZOUDVMomzWH/g==
+slate-react@^0.124.0:
+  version "0.124.0"
+  resolved "https://registry.yarnpkg.com/slate-react/-/slate-react-0.124.0.tgz#a2233fc7d32f8414f29335586f39e49d9a14b821"
+  integrity sha512-NLN6ME64ChOgJtiVTKwISS1sI/Y8/qN1cwmDTZM9AQJCl+jR3XNCvDsKNrW0kJU+1G3NgIGaYoVWhgIVEIL+Aw==
   dependencies:
     "@juggle/resize-observer" "^3.4.0"
     direction "^1.0.4"
@@ -2839,10 +2919,10 @@ slate-react@^0.120.0:
     scroll-into-view-if-needed "^3.1.0"
     tiny-invariant "1.3.1"
 
-slate@^0.120.0:
-  version "0.120.0"
-  resolved "https://registry.npmjs.org/slate/-/slate-0.120.0.tgz"
-  integrity sha512-CXK/DADGgMZb4z9RTtXylzIDOxvmNJEF9bXV2bAGkLWhQ3rm7GORY9q0H/W41YJvAGZsLbH7nnrhMYr550hWDQ==
+slate@^0.124.1:
+  version "0.124.1"
+  resolved "https://registry.yarnpkg.com/slate/-/slate-0.124.1.tgz#e899490f71227f934d818b3e4871ae9048d79c33"
+  integrity sha512-ii7DwezgvbLAyKtHBIunjTR1kzbNfYLCUKLMzJELlbTZkvHzX4DzN7HKIwcakf6dPxO6AoeT/P7kHOcyTym/hA==
 
 source-map-js@^1.2.1:
   version "1.2.1"
@@ -3024,7 +3104,7 @@ use-callback-ref@^1.3.3:
   dependencies:
     tslib "^2.0.0"
 
-use-debounce@^10.0.0:
+use-debounce@^10.0.0, use-debounce@^10.0.4:
   version "10.1.1"
   resolved "https://registry.npmjs.org/use-debounce/-/use-debounce-10.1.1.tgz"
   integrity sha512-kvds8BHR2k28cFsxW8k3nc/tRga2rs1RHYCqmmGqb90MEeE++oALwzh2COiuBLO1/QXiOuShXoSN2ZpWnMmvuQ==
