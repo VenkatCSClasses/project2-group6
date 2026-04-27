@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { GrDocumentText } from "react-icons/gr";
 import { createStarterContent } from "./editor/createStarterContent";
+import { TfiEmail } from "react-icons/tfi";
+import { BsFileEarmarkPlusFill } from "react-icons/bs";
 
 type DocumentSummary = {
    id: string;
@@ -103,6 +105,11 @@ export default function Dashboard() {
       if (res.ok) navigate(`/editor/${data.id}`);
    };
 
+   const incomingInvites = async () => {
+      // implement this function to show incoming invites for editor role
+      alert("This feature is not implemented yet.");
+   };
+
    const startRename = (doc: DocumentSummary) => {
       setRenamingId(doc.id);
       setRenameValue(doc.title);
@@ -169,7 +176,10 @@ export default function Dashboard() {
                   {activeTab === "writer" ? "Writer Documents" : "Editor Documents"}
                </h2>
                {activeTab === "writer" ? (
-                  <button onClick={() => void createNewDoc()} style={plusButtonStyle}>+</button>
+                  <button onClick={() => void createNewDoc()} style={plusButtonStyle}><BsFileEarmarkPlusFill style={{ fontSize: "25px" }}/></button>
+               ) : null}
+               {activeTab === "editor" ? (
+                  <button onClick={() => void incomingInvites()} style={plusButtonStyle}><TfiEmail style={{ fontSize: "25px" }} /></button>
                ) : null}
             </div>
 
@@ -253,7 +263,7 @@ const docStyle: React.CSSProperties = {
    borderRadius: "8px",
    marginTop: "10px",
    cursor: "pointer",
-   width: "fit-content",
+   width: "230px",
    boxShadow: "4px 4px 10px rgba(0, 0, 0, 0.30)",
 };
 
@@ -284,7 +294,7 @@ const tabsContainerStyle: React.CSSProperties = {
    padding: "5px",
    marginBottom: "20px",
    borderRadius: "15px",
-   width: "fit-content",
+   width: "600px",
    margin: "0 auto 20px auto",
 };
 
@@ -312,7 +322,7 @@ const plusButtonStyle: React.CSSProperties = {
    borderRadius: "50%",
    border: "none",
    cursor: "pointer",
-   backgroundColor: "#b2b2b2",
+   backgroundColor: "#4f5f85",
    color: "white",
    display: "flex",
    alignItems: "center",
