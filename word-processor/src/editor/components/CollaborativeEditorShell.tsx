@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import YooptaEditor, {
   Blocks,
   Marks,
   useYooptaEditor,
   type YooptaContentValue,
+  type RenderBlockProps,
 } from '@yoopta/editor';
 import { Editor, Text, Transforms } from 'slate';
 import { RemoteCursors } from '@yoopta/collaboration';
 import {
   BlockOptions,
   FloatingBlockActions,
-  FloatingToolbar,
   SlashCommandMenu,
+  ActionMenuList,
+  useBlockActions,
 } from '@yoopta/ui';
+import { BlockDndContext, SortableBlock, DragHandle } from '@yoopta/ui/block-dnd';
 import { createCollaborativeEditor } from '../collaboration/createCollaborativeEditor';
 import { createBaseEditor } from '../createBaseEditor';
 import { FloatingCommentButton } from '../comments/FloatingCommentButton';
@@ -23,78 +26,145 @@ type CommentLeaf = {
   commentHighlight?: { commentId: string; deleted?: boolean };
 };
 
-function EditorToolbar() {
+function FixedToolbar() {
   const editor = useYooptaEditor();
+  const turnIntoRef = useRef<HTMLButtonElement>(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
+
+  const markButtons = [
+    { type: 'bold', label: 'B', title: 'Bold' },
+    { type: 'italic', label: 'I', title: 'Italic' },
+    { type: 'underline', label: 'U', title: 'Underline' },
+    { type: 'strike', label: 'S', title: 'Strikethrough' },
+    { type: 'code', label: '</>', title: 'Code' },
+    { type: 'highlight', label: 'H', title: 'Highlight' },
+  ];
 
   return (
-    <FloatingToolbar>
-      <FloatingToolbar.Content>
-        <FloatingToolbar.Group>
-          <FloatingToolbar.Button
-            onClick={() => Marks.toggle(editor, { type: 'bold' })}
-            active={Marks.isActive(editor, { type: 'bold' })}
-            title="Bold"
-          >
-            B
-          </FloatingToolbar.Button>
-          <FloatingToolbar.Button
-            onClick={() => Marks.toggle(editor, { type: 'italic' })}
-            active={Marks.isActive(editor, { type: 'italic' })}
-            title="Italic"
-          >
-            I
-          </FloatingToolbar.Button>
-          <FloatingToolbar.Button
-            onClick={() => Marks.toggle(editor, { type: 'underline' })}
-            active={Marks.isActive(editor, { type: 'underline' })}
-            title="Underline"
-          >
-            U
-          </FloatingToolbar.Button>
-        </FloatingToolbar.Group>
-      </FloatingToolbar.Content>
-    </FloatingToolbar>
+    <>
+      <div className="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+        <button
+          ref={turnIntoRef}
+          type="button"
+          className="editor-toolbar-button editor-toolbar-turn-into"
+          onClick={() => setActionMenuOpen((prev) => !prev)}
+        >
+          Turn into
+        </button>
+
+        <span className="editor-toolbar-separator" />
+
+        {markButtons.map((btn) => {
+          if (!editor.formats[btn.type]) return null;
+          return (
+            <button
+              key={btn.type}
+              type="button"
+              className={`editor-toolbar-button ${Marks.isActive(editor, { type: btn.type }) ? 'is-active' : ''}`}
+              onClick={() => Marks.toggle(editor, { type: btn.type })}
+              title={btn.title}
+            >
+              {btn.label}
+            </button>
+          );
+        })}
+
+        <span className="editor-toolbar-separator" />
+
+        <button
+          type="button"
+          className="editor-toolbar-button"
+          onClick={() => Marks.clear(editor)}
+          title="Clear formatting"
+        >
+          Clear
+        </button>
+      </div>
+
+      <ActionMenuList
+        open={actionMenuOpen}
+        onOpenChange={setActionMenuOpen}
+        anchor={turnIntoRef.current}
+        view="small"
+        placement="bottom-start"
+      >
+        <ActionMenuList.Content />
+      </ActionMenuList>
+    </>
   );
 }
 
 function EditorBlockActions() {
   const editor = useYooptaEditor();
-  const dragHandleRef = useRef<HTMLButtonElement>(null);
+  const { duplicateBlock, copyBlockLink, deleteBlock } = useBlockActions();
+  const [blockOptionsOpen, setBlockOptionsOpen] = useState(false);
+  const optionsButtonRef = useRef<HTMLButtonElement>(null);
+  const turnIntoRef = useRef<HTMLButtonElement>(null);
+  const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
   return (
-    <FloatingBlockActions>
+    <FloatingBlockActions frozen={blockOptionsOpen || actionMenuOpen}>
       {({ blockId }: { blockId?: string | null }) => (
         <>
           <FloatingBlockActions.Button
             onClick={() => {
-              if (!blockId) {
-                return;
-              }
-
+              if (!blockId) return;
               const block = Blocks.getBlock(editor, { id: blockId });
               if (block) {
-                editor.insertBlock('Paragraph', {
-                  at: block.meta.order + 1,
-                  focus: true,
-                });
+                editor.insertBlock('Paragraph', { at: block.meta.order + 1, focus: true });
               }
             }}
           >
             +
           </FloatingBlockActions.Button>
-          <FloatingBlockActions.Button ref={dragHandleRef}>
-            ::
-          </FloatingBlockActions.Button>
-          <BlockOptions
-            open={false}
-            onOpenChange={() => undefined}
-            anchor={dragHandleRef.current}
+
+          <DragHandle blockId={blockId ?? null} asChild>
+            <FloatingBlockActions.Button title="Drag to reorder">
+              ::
+            </FloatingBlockActions.Button>
+          </DragHandle>
+
+          <FloatingBlockActions.Button
+            ref={optionsButtonRef}
+            onClick={() => setBlockOptionsOpen((prev) => !prev)}
+            title="Block options"
           >
-            <BlockOptions.Content />
+            ···
+          </FloatingBlockActions.Button>
+
+          <BlockOptions
+            open={blockOptionsOpen}
+            onOpenChange={setBlockOptionsOpen}
+            anchor={optionsButtonRef.current}
+          >
+            <BlockOptions.Content>
+              <BlockOptions.Item label="Turn into" ref={turnIntoRef} onClick={() => setActionMenuOpen(true)} />
+              <BlockOptions.Item label="Duplicate" onClick={() => { duplicateBlock({ blockId: blockId ?? '' }); setBlockOptionsOpen(false); }} />
+              <BlockOptions.Item label="Copy link" onClick={() => { copyBlockLink({ blockId: blockId ?? '' }); setBlockOptionsOpen(false); }} />
+              <BlockOptions.Item label="Delete" onClick={() => { deleteBlock({ blockId: blockId ?? '' }); setBlockOptionsOpen(false); }} />
+            </BlockOptions.Content>
           </BlockOptions>
+
+          <ActionMenuList
+            open={actionMenuOpen}
+            onOpenChange={(open) => { setActionMenuOpen(open); if (!open) setBlockOptionsOpen(false); }}
+            anchor={turnIntoRef.current}
+            view="small"
+            placement="right-start"
+          >
+            <ActionMenuList.Content />
+          </ActionMenuList>
         </>
       )}
     </FloatingBlockActions>
+  );
+}
+
+function DraggableBlock({ children, blockId, ...props }: RenderBlockProps) {
+  return (
+    <SortableBlock blockId={blockId} {...props}>
+      {children}
+    </SortableBlock>
   );
 }
 
@@ -138,46 +208,28 @@ export function CollaborativeEditorShell({
       savedContent,
       readOnly,
     });
-  }, [
-    currentUser,
-    documentId,
-    isRealtimeEnabled,
-    readOnly,
-    savedContent,
-    websocketUrl,
-  ]);
+  }, [currentUser, documentId, isRealtimeEnabled, readOnly, savedContent, websocketUrl]);
 
   useEffect(() => {
     const collaborativeEditor = editor as {
-      collaboration?: {
-        connect: () => void;
-        destroy: () => void;
-      };
+      collaboration?: { connect: () => void; destroy: () => void };
     };
     const collaboration = collaborativeEditor.collaboration;
 
-    if (!collaboration || !isRealtimeEnabled) {
-      return undefined;
-    }
+    if (!collaboration || !isRealtimeEnabled) return undefined;
 
     collaboration.connect();
-
-    return () => {
-      collaboration.destroy();
-    };
+    return () => { collaboration.destroy(); };
   }, [editor, isRealtimeEnabled]);
 
   useEffect(
     () => () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     },
     [],
   );
 
-  // When a comment is resolved, strip its marks from all per-block Slate editors.
-  // Ghost text (deleted:true) is physically removed; normal highlights are unmarked.
+  // Strip resolved comment marks from all per-block Slate editors.
   useEffect(() => {
     const newlyResolved = resolvedCommentIds.filter(
       (id) => !seenResolvedRef.current.has(id),
@@ -189,7 +241,6 @@ export function CollaborativeEditorShell({
       seenResolvedRef.current.add(resolvedId);
     }
 
-    // Yoopta maintains a separate Slate editor per block in blockEditorsMap.
     for (const slateEditor of Object.values(editor.blockEditorsMap)) {
       const toDelete: import('slate').Path[] = [];
 
@@ -217,7 +268,6 @@ export function CollaborativeEditorShell({
       }
     }
 
-    // Persist the cleaned-up content.
     if (onChange) {
       const updated = editor.getEditorValue();
       void Promise.resolve(onChange(updated));
@@ -227,13 +277,9 @@ export function CollaborativeEditorShell({
   const handleChange = readOnly
     ? undefined
     : (value: YooptaContentValue) => {
-        if (!onChange) {
-          return;
-        }
+        if (!onChange) return;
 
-        if (saveTimerRef.current) {
-          clearTimeout(saveTimerRef.current);
-        }
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
 
         saveTimerRef.current = setTimeout(() => {
           void onChange(value);
@@ -241,20 +287,23 @@ export function CollaborativeEditorShell({
       };
 
   return (
-    <YooptaEditor
-      editor={editor}
-      autoFocus={!readOnly}
-      onChange={handleChange}
-      placeholder={readOnly ? 'Reviewer mode' : 'Start writing'}
-      className="editor-surface"
-    >
-      {!readOnly ? <EditorToolbar /> : null}
-      {!readOnly ? <EditorBlockActions /> : null}
-      {!readOnly ? <SlashCommandMenu /> : null}
-      {onComment ? (
-        <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
-      ) : null}
-      {isRealtimeEnabled ? <RemoteCursors /> : null}
-    </YooptaEditor>
+    <BlockDndContext editor={editor}>
+      <YooptaEditor
+        editor={editor}
+        autoFocus={!readOnly}
+        onChange={handleChange}
+        placeholder={readOnly ? 'Reviewer mode' : 'Start writing'}
+        className="editor-surface"
+        renderBlock={!readOnly ? DraggableBlock : undefined}
+      >
+        {!readOnly ? <FixedToolbar /> : null}
+        {!readOnly ? <EditorBlockActions /> : null}
+        {!readOnly ? <SlashCommandMenu /> : null}
+        {onComment ? (
+          <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
+        ) : null}
+        {isRealtimeEnabled ? <RemoteCursors /> : null}
+      </YooptaEditor>
+    </BlockDndContext>
   );
 }

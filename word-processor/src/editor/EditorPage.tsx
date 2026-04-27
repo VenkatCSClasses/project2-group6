@@ -2,6 +2,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { type YooptaContentValue } from "@yoopta/editor";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "../App.css";
+import "../IntegratedStyles.css";
+import SearchSidebar from "../SearchSidebar";
+import Sources, { type SourceEntry } from "../Sources";
 import { ApiError } from "./api/request";
 import { CommentsPanel } from "./comments/commentsPanel";
 import { CollaborationStatus } from "./collaboration/CollaborationStatus";
@@ -102,6 +105,49 @@ export default function EditorPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [document, setDocument] = useState<EditorDocument | null>(null);
+  const [sources, setSources] = useState<SourceEntry[]>([]);
+
+  function addSource(data: { url: string }) {
+    let guessedTitle = "Untitled Page";
+    let guessedWebsite = "Unknown Source";
+
+    try {
+      const urlObj = new URL(data.url);
+      const domainParts = urlObj.hostname.replace('www.', '').split('.');
+      const rawSite = domainParts[domainParts.length - 2] || "Source";
+      guessedWebsite = rawSite.charAt(0).toUpperCase() + rawSite.slice(1);
+      const pathParts = urlObj.pathname.split('/').filter((p) => p !== "");
+      if (pathParts.length > 0) {
+        const lastPart = pathParts[pathParts.length - 1];
+        guessedTitle = decodeURIComponent(lastPart).replace(/-|_/g, ' ');
+        guessedTitle = guessedTitle.charAt(0).toUpperCase() + guessedTitle.slice(1);
+      }
+    } catch (e) {
+      console.error("URL parsing failed", e);
+    }
+
+    const newSource: SourceEntry = {
+      id: Math.random().toString(36).substr(2, 9),
+      url: data.url,
+      title: guessedTitle,
+      website: guessedWebsite,
+      author: '',
+      dateAccessed: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+      inlineCitation: '',
+      studio: '',
+      volume: '',
+      journal: '',
+      year: '',
+      publisher: '',
+      type: '',
+    };
+
+    setSources((prev) => [newSource, ...prev]);
+  }
+
+  function updateSource(updated: SourceEntry) {
+    setSources((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
+  }
   const [session, setSession] = useState<ActiveSession | null>(null);
   const [presence, setPresence] = useState<PresenceSnapshot | null>(null);
   const [sessionMode, setSessionMode] = useState<SessionMode>("edit");
@@ -586,6 +632,11 @@ export default function EditorPage() {
       </section>
 
       <section className="workspace-grid">
+        <aside className="sources-sidebar">
+          <SearchSidebar onLinkPasted={addSource} />
+          <Sources sourceList={sources} onUpdateSource={updateSource} />
+        </aside>
+
         <section className="editor-panel">
           <div className="panel-header">
             <div>
