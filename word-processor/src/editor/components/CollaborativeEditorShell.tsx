@@ -14,7 +14,10 @@ import {
   ActionMenuList,
   useBlockActions,
 } from '@yoopta/ui';
-// ActionMenuList is used in EditorBlockActions (block-level "Turn into"), not in FixedToolbar
+// @ts-expect-error - types not properly exported from subpath
+import { EmojiDropdown } from '@yoopta/themes-shadcn/emoji';
+// @ts-expect-error - types not properly exported from subpath
+import { MentionDropdown } from '@yoopta/themes-shadcn/mention';
 import { createCollaborativeEditor } from '../collaboration/createCollaborativeEditor';
 import { createBaseEditor } from '../createBaseEditor';
 import { FloatingCommentButton } from '../comments/FloatingCommentButton';
@@ -262,6 +265,8 @@ export function CollaborativeEditorShell({
       {!readOnly ? <FixedToolbar /> : null}
       {!readOnly ? <EditorBlockActions /> : null}
       {!readOnly ? <SlashCommandMenu /> : null}
+      {!readOnly ? <MentionDropdown /> : null}
+      {!readOnly ? <EmojiDropdown /> : null}
       {onComment ? (
         <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
       ) : null}

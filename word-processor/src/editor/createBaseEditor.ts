@@ -1,7 +1,12 @@
 import {
   createYooptaEditor,
   type YooptaContentValue,
+  type YooptaPlugin,
+  type SlateElement,
 } from '@yoopta/editor';
+import { withEmoji } from '@yoopta/emoji';
+import { withMentions } from '@yoopta/mention';
+import { applyTheme } from '@yoopta/themes-shadcn';
 import { MARKS } from './marks';
 import { PLUGINS } from './plugins';
 import { withCommentPreservation } from './comments/withCommentPreservation';
@@ -15,12 +20,16 @@ export function createBaseEditor({
   readOnly = false,
   value,
 }: BaseEditorOptions = {}) {
-  const yooEditor = createYooptaEditor({
-    plugins: PLUGINS,
-    marks: MARKS,
-    readOnly,
-    value,
-  });
+  const yooEditor = withEmoji(
+    withMentions(
+      createYooptaEditor({
+        plugins: applyTheme(PLUGINS) as unknown as YooptaPlugin<Record<string, SlateElement>, unknown>[],
+        marks: MARKS,
+        readOnly,
+        value,
+      }),
+    ),
+  );
 
   // Apply ghost-text preservation to every per-block Slate editor that
   // already exists (populated when `value` is provided at init time).
