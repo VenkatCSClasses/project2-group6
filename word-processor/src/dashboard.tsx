@@ -77,6 +77,7 @@ export default function Dashboard() {
    const [renameValue, setRenameValue] = useState("");
    const navigate = useNavigate();
    const username = localStorage.getItem("username") ?? "";
+   const [search, setSearch] = useState("");
 
    const fetchDocs = async () => {
       if (!username) { navigate("/login"); return; }
@@ -136,7 +137,10 @@ export default function Dashboard() {
       await fetchDocs();
    };
 
-   const docs = activeTab === "writer" ? writerDocs : editorDocs;
+   const docs = (activeTab === "writer" ? writerDocs : editorDocs)
+  .filter(doc =>
+    doc.title.toLowerCase().includes(search.toLowerCase())
+  );
 
    return (
       <div style={{ marginBottom: "20px" }}>
@@ -150,6 +154,14 @@ export default function Dashboard() {
                Editor
             </button>
          </div>
+
+         <input
+            type="text"
+            placeholder="Search documents..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={searchStyle}
+         />
 
          <section>
             <div style={headerWrapperStyle}>
@@ -173,7 +185,7 @@ export default function Dashboard() {
                            onClick={() => renamingId !== doc.id && openDoc(doc.id)}
                            style={{ ...docStyle, position: "relative" }}
                         >
-                           <GrDocumentText style={{ fontSize: "150px", marginTop: "12px" }} color="white" />
+                           <GrDocumentText style={{ fontSize: "150px", marginTop: "12px" }} color="#4f5f85" />
 
                            {renamingId === doc.id ? (
                               <div onClick={(e) => e.stopPropagation()} style={{ padding: "0 8px 10px" }}>
@@ -200,10 +212,10 @@ export default function Dashboard() {
                                  </div>
                               </div>
                            ) : (
-                              <h3 style={{ color: "white", marginBottom: "10px", marginTop: "10px" }}>{doc.title}</h3>
+                              <h3 style={{ color: "#4f5f85", marginBottom: "10px", marginTop: "10px" }}>{doc.title}</h3>
                            )}
 
-                           <p style={{ color: "white" }}>Last updated: {" "}
+                           <p style={{ color: "#4f5f85" }}>Last updated: {" "}
                               {new Date(doc.updatedAt).toLocaleDateString("en-US", {
                                  year: "numeric",
                                  month: "long",
@@ -236,7 +248,7 @@ const menuItemStyle: React.CSSProperties = {
 
 const docStyle: React.CSSProperties = {
    border: "1px solid #ccc",
-   backgroundColor: "#4f5f85",
+   backgroundColor: "#ffffff",
    padding: "10px",
    borderRadius: "8px",
    marginTop: "10px",
@@ -329,4 +341,14 @@ const renameCancelStyle: React.CSSProperties = {
    color: "white",
    fontSize: "12px",
    cursor: "pointer",
+};
+
+const searchStyle: React.CSSProperties = {
+  display: "block",
+  margin: "20px auto",
+  padding: "10px",
+  width: "590px",
+  borderRadius: "25px",
+  border: "1px solid #ccc",
+  fontSize: "16px",
 };
