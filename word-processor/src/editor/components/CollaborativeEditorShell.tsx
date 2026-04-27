@@ -4,7 +4,6 @@ import YooptaEditor, {
   Marks,
   useYooptaEditor,
   type YooptaContentValue,
-  type RenderBlockProps,
 } from '@yoopta/editor';
 import { Editor, Text, Transforms } from 'slate';
 import { RemoteCursors } from '@yoopta/collaboration';
@@ -15,7 +14,7 @@ import {
   ActionMenuList,
   useBlockActions,
 } from '@yoopta/ui';
-import { BlockDndContext, SortableBlock, DragHandle } from '@yoopta/ui/block-dnd';
+// ActionMenuList is used in EditorBlockActions (block-level "Turn into"), not in FixedToolbar
 import { createCollaborativeEditor } from '../collaboration/createCollaborativeEditor';
 import { createBaseEditor } from '../createBaseEditor';
 import { FloatingCommentButton } from '../comments/FloatingCommentButton';
@@ -28,8 +27,6 @@ type CommentLeaf = {
 
 function FixedToolbar() {
   const editor = useYooptaEditor();
-  const turnIntoRef = useRef<HTMLButtonElement>(null);
-  const [actionMenuOpen, setActionMenuOpen] = useState(false);
 
   const markButtons = [
     { type: 'bold', label: 'B', title: 'Bold' },
@@ -41,56 +38,33 @@ function FixedToolbar() {
   ];
 
   return (
-    <>
-      <div className="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
-        <button
-          ref={turnIntoRef}
-          type="button"
-          className="editor-toolbar-button editor-toolbar-turn-into"
-          onClick={() => setActionMenuOpen((prev) => !prev)}
-        >
-          Turn into
-        </button>
+    <div className="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+      {markButtons.map((btn) => {
+        if (!editor.formats[btn.type]) return null;
+        return (
+          <button
+            key={btn.type}
+            type="button"
+            className={`editor-toolbar-button ${Marks.isActive(editor, { type: btn.type }) ? 'is-active' : ''}`}
+            onClick={() => Marks.toggle(editor, { type: btn.type })}
+            title={btn.title}
+          >
+            {btn.label}
+          </button>
+        );
+      })}
 
-        <span className="editor-toolbar-separator" />
+      <span className="editor-toolbar-separator" />
 
-        {markButtons.map((btn) => {
-          if (!editor.formats[btn.type]) return null;
-          return (
-            <button
-              key={btn.type}
-              type="button"
-              className={`editor-toolbar-button ${Marks.isActive(editor, { type: btn.type }) ? 'is-active' : ''}`}
-              onClick={() => Marks.toggle(editor, { type: btn.type })}
-              title={btn.title}
-            >
-              {btn.label}
-            </button>
-          );
-        })}
-
-        <span className="editor-toolbar-separator" />
-
-        <button
-          type="button"
-          className="editor-toolbar-button"
-          onClick={() => Marks.clear(editor)}
-          title="Clear formatting"
-        >
-          Clear
-        </button>
-      </div>
-
-      <ActionMenuList
-        open={actionMenuOpen}
-        onOpenChange={setActionMenuOpen}
-        anchor={turnIntoRef.current}
-        view="small"
-        placement="bottom-start"
+      <button
+        type="button"
+        className="editor-toolbar-button"
+        onClick={() => Marks.clear(editor)}
+        title="Clear formatting"
       >
-        <ActionMenuList.Content />
-      </ActionMenuList>
-    </>
+        Clear
+      </button>
+    </div>
   );
 }
 
@@ -118,11 +92,9 @@ function EditorBlockActions() {
             +
           </FloatingBlockActions.Button>
 
-          <DragHandle blockId={blockId ?? null} asChild>
-            <FloatingBlockActions.Button title="Drag to reorder">
-              ::
-            </FloatingBlockActions.Button>
-          </DragHandle>
+          <FloatingBlockActions.Button title="Drag to reorder (coming soon)">
+            ::
+          </FloatingBlockActions.Button>
 
           <FloatingBlockActions.Button
             ref={optionsButtonRef}
@@ -160,13 +132,6 @@ function EditorBlockActions() {
   );
 }
 
-function DraggableBlock({ children, blockId, ...props }: RenderBlockProps) {
-  return (
-    <SortableBlock blockId={blockId} {...props}>
-      {children}
-    </SortableBlock>
-  );
-}
 
 export function CollaborativeEditorShell({
   documentId,
@@ -287,23 +252,20 @@ export function CollaborativeEditorShell({
       };
 
   return (
-    <BlockDndContext editor={editor}>
-      <YooptaEditor
-        editor={editor}
-        autoFocus={!readOnly}
-        onChange={handleChange}
-        placeholder={readOnly ? 'Reviewer mode' : 'Start writing'}
-        className="editor-surface"
-        renderBlock={!readOnly ? DraggableBlock : undefined}
-      >
-        {!readOnly ? <FixedToolbar /> : null}
-        {!readOnly ? <EditorBlockActions /> : null}
-        {!readOnly ? <SlashCommandMenu /> : null}
-        {onComment ? (
-          <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
-        ) : null}
-        {isRealtimeEnabled ? <RemoteCursors /> : null}
-      </YooptaEditor>
-    </BlockDndContext>
+    <YooptaEditor
+      editor={editor}
+      autoFocus={!readOnly}
+      onChange={handleChange}
+      placeholder={readOnly ? 'Reviewer mode' : 'Start writing'}
+      className="editor-surface"
+    >
+      {!readOnly ? <FixedToolbar /> : null}
+      {!readOnly ? <EditorBlockActions /> : null}
+      {!readOnly ? <SlashCommandMenu /> : null}
+      {onComment ? (
+        <FloatingCommentButton onComment={onComment} readOnly={readOnly} />
+      ) : null}
+      {isRealtimeEnabled ? <RemoteCursors /> : null}
+    </YooptaEditor>
   );
 }

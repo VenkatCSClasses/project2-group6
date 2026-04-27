@@ -86,6 +86,11 @@
             "id": "d0d7f77b-a7b1-47fb-abe5-1f8513708726",
             "title": "Untitled Document",
             "updatedAt": "2026-04-22T11:08:39.815Z"
+          },
+          {
+            "id": "7f3daec9-a490-4e84-b58a-63f9c701211a",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-27T11:03:24.989Z"
           }
         ],
         "editor": []
@@ -235,12 +240,7 @@
       "comments": [],
       "updatedAt": "2026-04-22T11:24:10.890Z",
       "sessions": {
-        "owner": {
-          "sessionId": "07da50a1-b601-4a32-beaf-15fea360de40",
-          "username": "suryash",
-          "displayName": "suryash",
-          "lastSeenAt": "2026-04-22T11:24:39.590Z"
-        },
+        "owner": null,
         "viewers": []
       }
     },
@@ -511,6 +511,96 @@
           "username": "suryash",
           "displayName": "suryash",
           "lastSeenAt": "2026-04-22T11:27:00.188Z"
+        },
+        "viewers": []
+      }
+    },
+    "7f3daec9-a490-4e84-b58a-63f9c701211a": {
+      "id": "7f3daec9-a490-4e84-b58a-63f9c701211a",
+      "title": "Untitled Document",
+      "ownerUsername": "suryash",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {
+        "3ec54fe2-b184-e60b-8de4-b7399c226b8f": {
+          "id": "3ec54fe2-b184-e60b-8de4-b7399c226b8f",
+          "value": [
+            {
+              "id": "d4ae7bd0-439b-c876-79c7-53e7f1834c44",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Untitled Document"
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "HeadingOne",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "854203ae-6c6f-3482-6081-1c35bdcf50ad": {
+          "id": "854203ae-6c6f-3482-6081-1c35bdcf50ad",
+          "value": [
+            {
+              "id": "1feabd96-8cde-30c0-0e16-e446cc5b7b7e",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Start writing here. Use the floating toolbar to format text."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "e9e23821-cc2a-dc09-a6c1-f363885cf2e8": {
+          "id": "e9e23821-cc2a-dc09-a6c1-f363885cf2e8",
+          "value": [
+            {
+              "id": "b7f277df-967c-78ec-8cb7-1801b4739853",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Type / to open the slash menu and insert new blocks."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        }
+      },
+      "comments": [],
+      "updatedAt": "2026-04-27T11:03:24.989Z",
+      "sessions": {
+        "owner": {
+          "sessionId": "8e5c0458-402a-44a9-9a80-a4f11fe7a2bd",
+          "username": "suryash",
+          "displayName": "suryash",
+          "lastSeenAt": "2026-04-27T11:04:10.157Z"
         },
         "viewers": []
       }
