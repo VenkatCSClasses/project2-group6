@@ -33,3 +33,7 @@ yarn-error.log*
 
 # OS files
 Thumbs.db
+node_modules
+word-processor/node_modules/
+lexical-test/node_modules/
+node_modules

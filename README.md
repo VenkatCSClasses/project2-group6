@@ -1,10 +1,6 @@
 # project2-group6
 Ray, Faith, Suryash, and George
 
-# Sprint plan
-https://docs.google.com/document/d/1ovA4SQM1nDByxMvQ0C5xEs1JmpQgkh4uJZZ-DU14AzU/edit?usp=sharing
-
-
 ## Pitch
 ### Overview
 
@@ -41,4 +37,6 @@ WordPress publishing integration
 
 ## State Diagram 
 ![State Diagram](state-diagram.png)
+
+
 
