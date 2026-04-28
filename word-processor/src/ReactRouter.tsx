@@ -3,6 +3,7 @@ import Dashboard from "./dashboard";
 import LoginPage from "./login";
 import RegisterPage from "./register";
 import IntegratedLayout from "./IntegratedLayout";
+import PublishPage from "./PublishPage";
 export default function AppRouter() {
   return (
     <Routes>
@@ -11,6 +12,7 @@ export default function AppRouter() {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/editor/:id" element={<IntegratedLayout />} />
+      <Route path="/publish/:id" element={<PublishPage />} />
     </Routes>
   );
 }

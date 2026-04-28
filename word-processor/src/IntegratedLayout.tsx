@@ -43,12 +43,74 @@ import type {
 } from "./editor/collaboration/types";
 import { getDocument, saveDocument } from "./editor/documents/documentApi";
 import type { EditorDocument } from "./editor/documents/types";
+import { getPublishDraftStorageKey } from "./publish";
 import {
   claimSession,
   getPresence,
   heartbeatSession,
   releaseSession,
 } from "./editor/session/sessionApi";
+
+function InviteJoinScreen({
+  documentId,
+  errorMessage,
+  isJoining,
+  onJoin,
+}: {
+  documentId: string;
+  errorMessage: string | null;
+  isJoining: boolean;
+  onJoin: (displayName: string) => Promise<void>;
+}) {
+  const [displayName, setDisplayName] = useState("");
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await onJoin(displayName);
+  }
+
+  return (
+    <main className="app-shell">
+      <section className="hero-panel join-shell">
+        <div>
+          <p className="eyebrow">Invite Link</p>
+          <h1>Join The Document</h1>
+          <p className="hero-copy">
+            This invite link opens shared read-only access for document {documentId}. Enter
+            your name to join and leave comments while the owner keeps edit control.
+          </p>
+          <p className="join-note">Viewers can comment, but only the owner can edit.</p>
+        </div>
+
+        <form className="join-form" onSubmit={handleSubmit}>
+          <label>
+            Your name
+            <input
+              value={displayName}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Name shown in comments and presence"
+            />
+          </label>
+
+          {errorMessage ? <p className="join-error">{errorMessage}</p> : null}
+
+          <button className="primary-button" disabled={isJoining} type="submit">
+            {isJoining ? "Joining..." : "Join workspace"}
+          </button>
+        </form>
+      </section>
+    </main>
+  );
+}
+
+function MissingAccess({ message }: { message: string }) {
+  return (
+    <main style={{ padding: "32px" }}>
+      <h1>Unable To Open Document</h1>
+      <p>{message}</p>
+    </main>
+  );
+}
 
 // Define the SourceEntry structure for MLA data
 export type SourceEntry = {
@@ -206,6 +268,12 @@ export default function IntegratedLayout() {
     [location.search],
   );
   const isOwner = session?.accessLevel === "owner";
+  const sessionMode = isOwner ? "edit" : "view";
+
+  // Invite / join state
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
 
   // Create the Yoopta editor instance
   const editor = useMemo(() => {
@@ -241,9 +309,8 @@ export default function IntegratedLayout() {
 
   // Load document and claim session
   useEffect(() => {
-    if (!documentId || inviteToken) {
-      return;
-    }
+    if (!documentId) return;
+    if (inviteToken) return;
 
     const username = localStorage.getItem("username");
     if (!username) {
@@ -285,6 +352,49 @@ export default function IntegratedLayout() {
       cancelled = true;
     };
   }, [documentId, inviteToken, navigate, editor]);
+
+  function syncEditorValue(nextDocument: EditorDocument) {
+    if (nextDocument.content && typeof nextDocument.content === "object") {
+      editor.setEditorValue(nextDocument.content);
+      return;
+    }
+
+    editor.setEditorValue(INITIAL_VALUE);
+  }
+
+  async function handleInviteJoin(displayName: string) {
+    if (!documentId || !inviteToken) {
+      return;
+    }
+
+    if (!displayName.trim()) {
+      setJoinError("Enter a name before joining.");
+      return;
+    }
+
+    setIsJoining(true);
+    setJoinError(null);
+
+    try {
+      const activeSession = await claimSession({
+        documentId,
+        accessLevel: "viewer",
+        displayName: displayName.trim(),
+        inviteToken,
+      });
+
+      setSession(activeSession);
+      const nextDocument = await getDocument(documentId, activeSession.sessionId);
+      setDocument(nextDocument);
+      setPresence(nextDocument.presence);
+      syncEditorValue(nextDocument);
+      setErrorMessage(null);
+    } catch (error) {
+      setJoinError(error instanceof Error ? error.message : "Unable to join the document.");
+    } finally {
+      setIsJoining(false);
+    }
+  }
 
   // Heartbeat to keep session alive
   useEffect(() => {
@@ -349,6 +459,7 @@ export default function IntegratedLayout() {
         const nextDocument = await getDocument(session.documentId, session.sessionId);
         setDocument(nextDocument);
         setPresence(nextDocument.presence);
+        syncEditorValue(nextDocument);
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           setErrorMessage("Your viewer session expired. Open the document again.");
@@ -403,6 +514,10 @@ export default function IntegratedLayout() {
 
   // Editor change handler
   const onChange = (value: YooptaContentValue) => {
+    if (!isOwner) {
+      return;
+    }
+
     localStorage.setItem("yoopta-word-example", JSON.stringify(value));
     queueSave(value);
   };
@@ -454,6 +569,18 @@ export default function IntegratedLayout() {
     setSources((prev) => prev.map((s) => (s.id === updated.id ? updated : s)));
   };
 
+  function handlePublish() {
+    if (!documentId || !document) {
+      return;
+    }
+
+    const draftKey = getPublishDraftStorageKey(documentId);
+    const editorValue = document.content ?? editor.getEditorValue();
+    localStorage.setItem(draftKey, JSON.stringify(editorValue));
+    const fromPath = `${window.location.pathname}${window.location.search}`;
+    navigate(`/publish/${documentId}?from=${encodeURIComponent(fromPath)}`);
+  }
+
   const renderBlock = useCallback(({ children, blockId }: RenderBlockProps) => (
     <SortableBlock id={blockId} useDragHandle>
       {children}
@@ -462,15 +589,21 @@ export default function IntegratedLayout() {
 
   // Error states
   if (!documentId) {
-    return <div style={{ padding: "32px" }}>Missing document ID</div>;
+    return <MissingAccess message="Missing document id." />;
   }
 
   if (errorMessage) {
+    return <MissingAccess message={errorMessage} />;
+  }
+
+  if (inviteToken && (!session || !document || !presence)) {
     return (
-      <div style={{ padding: "32px" }}>
-        <h1>Error</h1>
-        <p>{errorMessage}</p>
-      </div>
+      <InviteJoinScreen
+        documentId={documentId || ""}
+        errorMessage={joinError}
+        isJoining={isJoining}
+        onJoin={handleInviteJoin}
+      />
     );
   }
 
@@ -485,7 +618,15 @@ export default function IntegratedLayout() {
         <Sources sourceList={sources} onUpdateSource={updateSource} />
       </aside>
       <main className="workspace-right">
-        <WordToolbar editor={editor} onExport={() => {}} onPrint={() => {}} />
+        <WordToolbar
+          editor={editor}
+          onExport={() => {}}
+          onPrint={() => {}}
+          onToggleComments={() => setIsCommentsOpen((prev) => !prev)}
+          isCommentsOpen={isCommentsOpen}
+          onPublish={handlePublish}
+          isPublishDisabled={!isOwner}
+        />
         <div className="flex-1 bg-neutral-100 dark:bg-neutral-900 overflow-auto">
           <div className="max-w-5xl mx-auto py-8 px-4">
             <div
@@ -526,19 +667,33 @@ export default function IntegratedLayout() {
                     <EmojiDropdown />
                   </YooptaEditor>
                 </BlockDndContext>
-                <CommentsPanel
-                  documentId={documentId}
-                  sessionId={session?.sessionId || ""}
-                  canResolveComments={isOwner}
-                />
               </div>
             </div>
           </div>
         </div>
+        {isCommentsOpen ? (
+          <aside
+            style={{
+              position: "fixed",
+              top: 88,
+              right: 16,
+              width: "min(380px, calc(100vw - 32px))",
+              maxHeight: "calc(100vh - 108px)",
+              overflowY: "auto",
+              zIndex: 70,
+            }}
+          >
+            <CommentsPanel
+              documentId={documentId}
+              sessionId={session?.sessionId || ""}
+              canResolveComments={isOwner}
+            />
+          </aside>
+        ) : null}
         {session && presence && (
           <CollaborationStatus
             accessLevel={session.accessLevel}
-            sessionMode="edit"
+            sessionMode={sessionMode}
             ownerName={presence.ownerName}
             viewerNames={presence.viewerNames}
             viewerCount={presence.viewerCount}

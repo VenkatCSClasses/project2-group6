@@ -117,6 +117,8 @@ export function CommentsPanel({
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
+            onClickCapture={(event) => event.stopPropagation()}
+            onKeyDownCapture={(event) => event.stopPropagation()}
             placeholder="Leave feedback for the editor (or highlight text in the document to anchor a comment)"
           />
         </label>

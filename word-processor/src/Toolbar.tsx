@@ -14,10 +14,11 @@ import {
   AlignCenter,
   AlignRight,
   Image,
+  MessageSquare,
+  Send,
   ChevronDown,
 } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import PublishToWordPress from "./publish";
 
 /* ---------------- UI Helpers ---------------- */
 
@@ -55,10 +56,18 @@ export const WordToolbar = ({
   editor,
   onExport,
   onPrint,
+  onToggleComments,
+  isCommentsOpen,
+  onPublish,
+  isPublishDisabled,
 }: {
   editor: YooEditor;
   onExport: any;
   onPrint: any;
+  onToggleComments?: () => void;
+  isCommentsOpen?: boolean;
+  onPublish?: () => void;
+  isPublishDisabled?: boolean;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [align, setAlignState] = useState<"left" | "center" | "right">("left");
@@ -249,7 +258,27 @@ export const WordToolbar = ({
         {/* Insert */}
         <ToolbarButton onClick={insertImage}><Image size={16} /></ToolbarButton>
 
-        {/* publish moved to fixed top-right */}
+        <Separator />
+
+        {/* Comments */}
+        <ToolbarButton
+          active={Boolean(isCommentsOpen)}
+          onClick={onToggleComments}
+          title="Toggle comments"
+        >
+          <MessageSquare size={16} />
+        </ToolbarButton>
+
+        <Button
+          className="gap-2 border border-neutral-300 bg-white"
+          onClick={onPublish}
+          disabled={isPublishDisabled}
+          title={isPublishDisabled ? "Only owner can publish" : "Open publish page"}
+          type="button"
+        >
+          <Send size={14} />
+          Publish
+        </Button>
 
         {/* Hidden file input */}
         <input
@@ -258,11 +287,6 @@ export const WordToolbar = ({
           onChange={onFile}
           className="hidden"
         />
-      </div>
-
-      {/* fixed publish button in top-right corner */}
-      <div className="fixed top-4 right-4 z-50">
-        <PublishToWordPress getSourceValue={() => editor.getEditorValue()} />
       </div>
     </div>
   );

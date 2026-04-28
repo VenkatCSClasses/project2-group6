@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 
-type SourceValue = unknown;
+export type SourceValue = unknown;
 
 type PublishResult = {
 	id: number;
@@ -8,9 +8,9 @@ type PublishResult = {
 	status: string;
 };
 
-type PublishStatus = 'draft' | 'publish' | 'pending' | 'private';
+export type PublishStatus = 'draft' | 'publish' | 'pending' | 'private';
 
-function normalizeSiteUrl(value: string): string {
+export function normalizeSiteUrl(value: string): string {
 	const trimmed = value.trim().replace(/\/$/, '');
 
 	if (!trimmed) {
@@ -71,7 +71,7 @@ function extractTextFromSource(source: SourceValue): string {
 	return '';
 }
 
-function deriveStoryFields(source: SourceValue): { title: string; content: string } {
+export function deriveStoryFields(source: SourceValue): { title: string; content: string } {
 	const plainText = extractTextFromSource(source)
 		.replace(/\r\n/g, '\n')
 		.trim();
@@ -86,6 +86,10 @@ function deriveStoryFields(source: SourceValue): { title: string; content: strin
 		title: headline.trim(),
 		content: rest.join('\n').trim(),
 	};
+}
+
+export function getPublishDraftStorageKey(documentId: string): string {
+	return `wp-publish-draft:${documentId}`;
 }
 
 type PublishToWordPressProps = {
