@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "vitest": "^3.1.4"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix word-processor\"",
+    "test": "vitest run"
+  }
+}
