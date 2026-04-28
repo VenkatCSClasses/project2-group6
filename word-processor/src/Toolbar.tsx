@@ -15,6 +15,7 @@ import {
   AlignRight,
   Image,
   MessageSquare,
+  Link,
   Send,
   ChevronDown,
 } from "lucide-react";
@@ -60,6 +61,8 @@ export const WordToolbar = ({
   isCommentsOpen,
   onPublish,
   isPublishDisabled,
+  onToggleInvite,
+  isInviteOpen,
 }: {
   editor: YooEditor;
   onExport: any;
@@ -68,6 +71,8 @@ export const WordToolbar = ({
   isCommentsOpen?: boolean;
   onPublish?: () => void;
   isPublishDisabled?: boolean;
+  onToggleInvite?: () => void;
+  isInviteOpen?: boolean;
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [align, setAlignState] = useState<"left" | "center" | "right">("left");
@@ -267,6 +272,14 @@ export const WordToolbar = ({
           title="Toggle comments"
         >
           <MessageSquare size={16} />
+        </ToolbarButton>
+
+        <ToolbarButton
+          active={Boolean(isInviteOpen)}
+          onClick={onToggleInvite}
+          title="Invite reviewers"
+        >
+          <Link size={16} />
         </ToolbarButton>
 
         <Button

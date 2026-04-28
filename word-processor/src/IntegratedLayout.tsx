@@ -41,7 +41,7 @@ import type {
   ActiveSession,
   PresenceSnapshot,
 } from "./editor/collaboration/types";
-import { getDocument, saveDocument } from "./editor/documents/documentApi";
+import { getDocument, saveDocument, updateSharedViewers } from "./editor/documents/documentApi";
 import type { EditorDocument } from "./editor/documents/types";
 import { getPublishDraftStorageKey } from "./publish";
 import {
@@ -50,6 +50,7 @@ import {
   heartbeatSession,
   releaseSession,
 } from "./editor/session/sessionApi";
+import { getViewerInvite, generateViewerInvite } from "./editor/session/sessionApi";
 
 function InviteJoinScreen({
   documentId,
@@ -274,6 +275,12 @@ export default function IntegratedLayout() {
   const [joinError, setJoinError] = useState<string | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [viewerInvite, setViewerInvite] = useState<any | null>(null);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteFeedback, setInviteFeedback] = useState<string | null>(null);
+  const [isGeneratingInvite, setIsGeneratingInvite] = useState(false);
+  const [sharedUsersInput, setSharedUsersInput] = useState("");
 
   // Create the Yoopta editor instance
   const editor = useMemo(() => {
@@ -581,6 +588,87 @@ export default function IntegratedLayout() {
     navigate(`/publish/${documentId}?from=${encodeURIComponent(fromPath)}`);
   }
 
+  async function loadInvite() {
+    if (!session || session.accessLevel !== "owner") {
+      setViewerInvite(null);
+      return;
+    }
+
+    try {
+      const nextInvite = await getViewerInvite(session.documentId, session.sessionId);
+      setViewerInvite(nextInvite);
+      setInviteError(null);
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : "Unable to load invite link.");
+    }
+  }
+
+  async function handleGenerateInvite() {
+    if (!session || session.accessLevel !== "owner") return;
+    setIsGeneratingInvite(true);
+    setInviteError(null);
+    setInviteFeedback(null);
+
+    try {
+      const nextInvite = await generateViewerInvite(session.documentId, session.sessionId);
+      setViewerInvite(nextInvite);
+      setInviteFeedback("Invite link ready to share.");
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : "Unable to generate an invite link.");
+    } finally {
+      setIsGeneratingInvite(false);
+    }
+  }
+
+  async function handleCopyInvite() {
+    const inviteLink = viewerInvite?.token ? `${window.location.origin}/editor/${documentId}?invite=${viewerInvite.token}` : null;
+    if (!inviteLink) return;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(inviteLink);
+      } else {
+        const el = window.document.createElement("textarea");
+        el.value = inviteLink;
+        el.style.cssText = "position:fixed;opacity:0";
+        window.document.body.appendChild(el);
+        el.focus();
+        el.select();
+        window.document.execCommand("copy");
+        window.document.body.removeChild(el);
+      }
+      setInviteFeedback("Invite link copied.");
+      setInviteError(null);
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : "Unable to copy the invite link.");
+    }
+  }
+  function parseCollaborators(input: string) {
+    return input
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  async function handleSaveCollaborators() {
+    if (!session || !document) return;
+
+    try {
+      const nextDocument = await updateSharedViewers(
+        document.id,
+        session.sessionId,
+        parseCollaborators(sharedUsersInput),
+      );
+      setDocument(nextDocument);
+      setPresence(nextDocument.presence);
+      setSharedUsersInput(nextDocument.sharedWith.join(", "));
+      setInviteFeedback("Collaborator access updated.");
+      setInviteError(null);
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : "Unable to update collaborators.");
+    }
+  }
+
   const renderBlock = useCallback(({ children, blockId }: RenderBlockProps) => (
     <SortableBlock id={blockId} useDragHandle>
       {children}
@@ -626,6 +714,11 @@ export default function IntegratedLayout() {
           isCommentsOpen={isCommentsOpen}
           onPublish={handlePublish}
           isPublishDisabled={!isOwner}
+          onToggleInvite={() => {
+            setIsInviteOpen((prev) => !prev);
+            if (!isInviteOpen) void loadInvite();
+          }}
+          isInviteOpen={isInviteOpen}
         />
         <div className="flex-1 bg-neutral-100 dark:bg-neutral-900 overflow-auto">
           <div className="max-w-5xl mx-auto py-8 px-4">
@@ -688,6 +781,81 @@ export default function IntegratedLayout() {
               sessionId={session?.sessionId || ""}
               canResolveComments={isOwner}
             />
+          </aside>
+        ) : null}
+        {isInviteOpen ? (
+          <aside
+            style={{
+              position: "fixed",
+              top: 88,
+              right: isCommentsOpen ? 420 : 16,
+              width: "min(420px, calc(100vw - 32px))",
+              maxHeight: "calc(100vh - 108px)",
+              overflowY: "auto",
+              zIndex: 80,
+            }}
+          >
+            <div className="invite-card">
+              <div>
+                <p className="eyebrow">Invite Link</p>
+                <h2>Allow guest reviewers in</h2>
+                <p className="panel-note">
+                  Generate a shareable link for this document. Anyone with the link can
+                  join in read-only mode and leave comments.
+                </p>
+              </div>
+
+              <div className="invite-actions" style={{ marginTop: 12 }}>
+                <button
+                  className="secondary-button"
+                  disabled={isGeneratingInvite}
+                  onClick={() => void handleGenerateInvite()}
+                  type="button"
+                >
+                  {isGeneratingInvite ? "Generating..." : viewerInvite?.token ? "Regenerate link" : "Create invite link"}
+                </button>
+                <button
+                  className="primary-button"
+                  disabled={!viewerInvite?.token}
+                  onClick={() => void handleCopyInvite()}
+                  type="button"
+                >
+                  Copy link
+                </button>
+              </div>
+
+              {viewerInvite?.token ? (
+                <label className="invite-link-field" style={{ marginTop: 12 }}>
+                  Shareable link
+                  <input readOnly value={`${window.location.origin}/editor/${documentId}?invite=${viewerInvite.token}`} />
+                </label>
+              ) : null}
+
+              {viewerInvite?.createdAt ? (
+                <p className="panel-note">Generated {new Date(viewerInvite.createdAt).toLocaleString()}</p>
+              ) : null}
+
+              <label style={{ marginTop: 12 }} className="invite-link-field">
+                Collaborator usernames
+                <input
+                  value={sharedUsersInput}
+                  onChange={(e) => setSharedUsersInput(e.target.value)}
+                  placeholder="editor1, editor2"
+                />
+              </label>
+
+              <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                <button className="secondary-button" onClick={() => void handleSaveCollaborators()}>
+                  Save collaborators
+                </button>
+                <button className="secondary-button" onClick={() => { setIsInviteOpen(false); setInviteError(null); setInviteFeedback(null); }}>
+                  Close
+                </button>
+              </div>
+
+              {inviteFeedback ? <p className="invite-feedback">{inviteFeedback}</p> : null}
+              {inviteError ? <p className="join-error">{inviteError}</p> : null}
+            </div>
           </aside>
         ) : null}
         {session && presence && (
