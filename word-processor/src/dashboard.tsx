@@ -79,7 +79,7 @@ export default function Dashboard() {
 
   const fetchDocs = async () => {
     if (!username) { navigate("/login"); return; }
-    const res = await fetch(`/api/documents?username=${encodeURIComponent(username)}`);
+    const res = await fetch(`http://localhost:3001/api/documents?username=${encodeURIComponent(username)}`);
     const data = await res.json();
     setWriterDocs(data.writerDocs || []);
     setEditorDocs(data.editorDocs || []);
@@ -92,7 +92,7 @@ export default function Dashboard() {
   const createNewDoc = async () => {
     if (!username) { navigate("/login"); return; }
     const title = "Untitled Document";
-    const res = await fetch("/api/documents", {
+    const res = await fetch("http://localhost:3001/api/documents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, title, content: createStarterContent(title) }),
@@ -108,7 +108,7 @@ export default function Dashboard() {
 
   const commitRename = async () => {
     if (!renamingId || !renameValue.trim()) return;
-    await fetch(`/api/documents/${renamingId}/rename`, {
+    await fetch(`http://localhost:3001/api/documents/${renamingId}/rename`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, title: renameValue.trim() }),

@@ -2,7 +2,8 @@
 import SearchSidebar from './SearchSidebar';
 import './IntegratedStyles.css';
 import Sources from './Sources';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { WordEditor } from './Appv2';
 
 //Define the SourceEntry structure for MLA data
@@ -25,9 +26,93 @@ export type SourceEntry = {
 //IntegratedLayout combines the SearchSidebar and the Editor into a cohesive layout
 
 export default function IntegratedLayout() {
-    //Central state to hold our list of citations
+    const { id: documentId } = useParams();
+    const navigate = useNavigate();
     const [sources, setSources] = useState<SourceEntry[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    useEffect(() => {
+      if (!documentId) {
+        setError("Missing document ID");
+        setLoading(false);
+        return;
+      }
+
+      const loadDocument = async () => {
+        try {
+          const username = localStorage.getItem("username");
+          if (!username) {
+            navigate("/login");
+            return;
+          }
+
+          // First, claim a session for this document
+          const sessionRes = await fetch(`http://localhost:3001/api/documents/${documentId}/session/claim`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, displayName: username }),
+          });
+
+          if (!sessionRes.ok) {
+            const errorData = await sessionRes.json();
+            throw new Error(`Failed to claim session: ${errorData.error || sessionRes.statusText}`);
+          }
+
+          const sessionData = await sessionRes.json();
+          const { sessionId } = sessionData;
+          
+          console.log("✅ Session claimed successfully");
+          console.log("Session data:", sessionData);
+          console.log("Using sessionId:", sessionId);
+
+          // Now fetch the document with the session ID
+          const docUrl = `http://localhost:3001/api/documents/${documentId}?sessionId=${sessionId}`;
+          console.log("📄 Fetching document from:", docUrl);
+          
+          const res = await fetch(docUrl);
+          
+          if (!res.ok) {
+            const errorData = await res.json().catch(() => ({}));
+            console.error("❌ Document fetch failed:", res.status, errorData);
+            throw new Error(`Failed to load document: ${errorData.error || res.statusText}`);
+          }
+          const data = await res.json();
+          
+          console.log("✅ Document loaded successfully:", { data });
+          
+          // Store document content in localStorage so WordEditor can load it
+          if (data.content) {
+            localStorage.setItem("yoopta-word-example", JSON.stringify(data.content));
+          }
+          
+          // Load any sources from the document if they exist
+          if (data.sources) {
+            setSources(data.sources);
+          }
+          
+          // Store current document ID and session for saving later
+          sessionStorage.setItem("currentDocumentId", documentId);
+          sessionStorage.setItem("currentSessionId", sessionId);
+          
+          setLoading(false);
+        } catch (err) {
+          console.error("Error loading document:", err);
+          setError(err instanceof Error ? err.message : "Error loading document");
+          setLoading(false);
+        }
+      };
+
+      loadDocument();
+    }, [documentId, navigate]);
+
+    if (loading) {
+      return <div style={{ padding: "32px" }}>Loading document...</div>;
+    }
+
+    if (error) {
+      return <div style={{ padding: "32px" }}><h1>Error</h1><p>{error}</p></div>;
+    }
 
     //This takes a URL and guesses the Title/Website
     const addSource = (data: { url: string }) => {

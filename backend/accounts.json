@@ -86,6 +86,11 @@
             "id": "d0d7f77b-a7b1-47fb-abe5-1f8513708726",
             "title": "Untitled Document",
             "updatedAt": "2026-04-22T11:08:39.815Z"
+          },
+          {
+            "id": "b2335452-53ec-4da2-95a3-0c77a1265416",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-28T12:59:16.938Z"
           }
         ],
         "editor": []
@@ -236,10 +241,10 @@
       "updatedAt": "2026-04-22T11:24:10.890Z",
       "sessions": {
         "owner": {
-          "sessionId": "07da50a1-b601-4a32-beaf-15fea360de40",
+          "sessionId": "eb8580c0-43b4-4be7-8f98-3bcd7ee7bc4e",
           "username": "suryash",
           "displayName": "suryash",
-          "lastSeenAt": "2026-04-22T11:24:39.590Z"
+          "lastSeenAt": "2026-04-28T12:49:10.585Z"
         },
         "viewers": []
       }
@@ -326,10 +331,10 @@
       "updatedAt": "2026-04-22T03:29:24.239Z",
       "sessions": {
         "owner": {
-          "sessionId": "0d9ec037-1718-43ca-b1cd-aee4cfc04008",
+          "sessionId": "81110cdf-dd41-4480-859b-2441a79e4b60",
           "username": "suryash",
           "displayName": "suryash",
-          "lastSeenAt": "2026-04-22T03:33:14.342Z"
+          "lastSeenAt": "2026-04-28T12:51:03.673Z"
         },
         "viewers": []
       }
@@ -511,6 +516,96 @@
           "username": "suryash",
           "displayName": "suryash",
           "lastSeenAt": "2026-04-22T11:27:00.188Z"
+        },
+        "viewers": []
+      }
+    },
+    "b2335452-53ec-4da2-95a3-0c77a1265416": {
+      "id": "b2335452-53ec-4da2-95a3-0c77a1265416",
+      "title": "Untitled Document",
+      "ownerUsername": "suryash",
+      "sharedWith": [],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {
+        "7551bfb3-4514-4dcd-ad61-7b348fd55b02": {
+          "id": "7551bfb3-4514-4dcd-ad61-7b348fd55b02",
+          "value": [
+            {
+              "id": "6bdc6db2-3742-4710-b896-da5eae173902",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Untitled Document"
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "HeadingOne",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "9d395833-e478-4356-9b1e-63cf4c9f6522": {
+          "id": "9d395833-e478-4356-9b1e-63cf4c9f6522",
+          "value": [
+            {
+              "id": "b703549a-358e-4f1b-8f72-ad782bb2e9ac",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Start writing here. Use the floating toolbar to format text."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "dc4b4526-6ba1-4106-ba39-8e774ebd1205": {
+          "id": "dc4b4526-6ba1-4106-ba39-8e774ebd1205",
+          "value": [
+            {
+              "id": "fdb7321e-e877-48ae-96fe-99cacac51c96",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Type / to open the slash menu and insert new blocks."
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "Paragraph",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        }
+      },
+      "comments": [],
+      "updatedAt": "2026-04-28T12:59:16.938Z",
+      "sessions": {
+        "owner": {
+          "sessionId": "ee3b486e-7fb9-4890-add3-a468a0935bae",
+          "username": "suryash",
+          "displayName": "suryash",
+          "lastSeenAt": "2026-04-28T12:59:16.980Z"
         },
         "viewers": []
       }
