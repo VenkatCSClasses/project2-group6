@@ -1,9 +1,7 @@
 
-//import Editor from './App' //Import the original Editor component
 import SearchSidebar from './SearchSidebar';
 import './IntegratedStyles.css';
 import Sources from './Sources';
-import './IntegratedStyles.css';
 import { useState } from 'react';
 import { WordEditor } from './Appv2';
 
@@ -90,7 +88,7 @@ export default function IntegratedLayout() {
         <Sources sourceList={sources} onUpdateSource={updateSource} />   
      </aside>
      <main className="workspace-right">
-       <WordEditor />
+      <WordEditor />
      </main>
    </div>
  );
