@@ -1,13 +1,14 @@
+# AI Use : All documents and code was created with the help of Gemini and Chat GPT
 
 ## Overview
 This project is a web-based writing environment designed specifically for journalists and editors. It combines document creation, research, citation management, and collaboration into a single platform. Unlike traditional word processors, this application is tailored to newsroom workflows, allowing users to organize sources, track references, and collaborate efficiently.
 
 The system supports two roles:
-## Writers: Can create, edit, and publish documents
-## Editors: Invited collaborators with read-only access and commenting permissions.
+# Writers: Can create, edit, and publish documents
+# Editors: Invited collaborators with read-only access and commenting permissions.
 
 ## Installation Guide
-## Prerequisites
+# Prerequisites
 
 Make sure the following are installed on your system:
 
@@ -43,20 +44,20 @@ Writers can create a new document using the “+” button.
 
 
 ## Document Editor Features
-## Layout
+# Layout
 
 Each document includes:
 Left Sidebar: Searchbar and sources
 Main Editor: Writing area
 Bottom Panel: Collaboration details
 
-## Integrated Browser
+# Integrated Browser
 
 Users can search or paste links into the sidebar
 Non-commercial sites (e.g., Wikipedia) open inside the app
 Commercial sites open in a new browser tab
 
-## Citation Management
+# Citation Management
 Pasting a link automatically generates a citation
 Users can edit citations for accuracy
 Source types include:Website, Book,Article/Journal, Film/Movie, Interview/ Word of mouth
@@ -64,36 +65,36 @@ Each type dynamically provides relevant fields (e.g., publisher, year).
 
 
 ## Text Editor Tools
-## Editing
+# Editing
 Undo / Redo recent changes 
 
-## Formatting
+# Formatting
 Normal text, Heading 1, Heading 2
 Bold, Italic, Underline
 Text Alignment: Left, Center, Right
 Bullet points and numbered lists
 
-## Insert
+# Insert
 Add images
 
-## Comments
+# Comments
 Add comments to the document
 Resolve comments
 
-## Sharing & Publishing
+# Sharing & Publishing
 Generate shareable document link
 Invite a user as a collaborator by adding their email username
 Publish directly to WordPress (writers only)
 
-## Collaboration System
+# Collaboration System
 Document Owner (Writer): Full edit access, can publish, always in edit mode
 Editor: Read-only access, can only comment, cannot publish
 
-## Collaboration Panel
+# Collaboration Panel
 Displays: Active users, User roles (owner/editor) and Access mode (edit/read)
 
 
-## How to Use the App
+# How to Use the App
 1.Sign up or log in
 2.Create a new document
 3.Use the editor to write content
@@ -105,12 +106,12 @@ Displays: Active users, User roles (owner/editor) and Access mode (edit/read)
 
 ## Testing
 
-## TestingOverview
+# TestingOverview
 
 This application focuses on component-level validation and end-to-end system workflows rather than traditional unit testing. Because the platform is highly interactive (rich text editor, role-based permissions, embedded browsing, and collaboration), testing emphasizes user behavior, UI state changes, and multi-step processes.
 
 ## Component Testing
-1. Authentication Component 
+# Authentication Component 
 Test : Secure and Consistent User Access
 
 User signs up with valid email/password : account created and stored in JSON
@@ -119,7 +120,7 @@ User logs in with incorrect credentials: access denied, error “Incorrect passw
 Empty input fields: Error “Please fill in all fields”
 Duplicate account creation: Error user already exists
 
-2. Dashboard Component: Validate document organization and role separation
+# Dashboard Component: Validate document organization and role separation
 Test : Document appears in correct sections
 
 User sees both a Writer and Editor section
@@ -128,7 +129,7 @@ The Editor section contains only documents a user is added as an editor on
 “+” button creates a new document
 
 
-3. Document Editor Component
+# Document Editor Component
 Tests: Ensure all writing and formatting tools function correctly.
 
 Apply bold, italics, underline:  formatting reflected immediately
@@ -138,7 +139,7 @@ Bullet and numbered lists render properly
 Editing controls : undo reverse last action and redo restores undone action
 Media Insertion: an image is inserted to the document.
 
-4. Citation & Sources Component
+# Citation & Sources Component
 Test: Automatic citation generation and customization
 Pasting a link auto-generates a citation
 Citation appears in the Sources section
@@ -146,13 +147,13 @@ User can edit citation fields
 Switching source type updates available fields dynamically.
 You can switch types after editing
 
-5.Integrated Browser Component
+# Integrated Browser Component
 Test: Ensure correct handling of internal vs external browsing.
 
 Non-commercial link (e.g., Wikipedia) loads inside the app
 Commercial link opens in a new browser tab
 
-6. Collaboration Component
+# Collaboration Component
 Test: Role based permissions and visibility
 
 Writer has full edit access
@@ -161,7 +162,7 @@ Editor can add comments but cannot modify content
 Publish button disabled for editors
 The Collaboration panel displays all active users, roles and reflects access mode
 
-7. Commenting System
+# Commenting System
 Tests: Validate comment system
 
 If a user adds a comment it appears in document
@@ -169,7 +170,7 @@ Comments can be resolved
 Multiple comments can exist simultaneously
 Comments can be resolved but still appear in review queue
 
-8. Publishing Component
+# Publishing Component
 Test :Confirm correct publishing workflow
 
 Writer clicks publish:  redirected to publish page
