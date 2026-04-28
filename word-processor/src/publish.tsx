@@ -134,7 +134,7 @@ export default function PublishToWordPress({ getSourceValue }: PublishToWordPres
 
 		const normalizedSiteUrl = normalizeSiteUrl(siteUrl);
 		const activeUsername = username.trim();
-		const activeAppPassword = appPassword.replace(/\s+/g, '');
+		const activeAppPassword = appPassword.trim();
 		const story = deriveStoryFields(getSourceValue());
 		const titleToPublish = story.title || title;
 		const contentToPublish = story.content || content;

@@ -82,16 +82,15 @@ export default function PublishPage() {
     setIsSubmitting(true);
 
     try {
-      const endpoint = `${normalizedSiteUrl}/wp-json/wp/v2/posts`;
-      const credentials = btoa(`${activeUsername}:${activeAppPassword}`);
-
-      const response = await fetch(endpoint, {
+      const response = await fetch('/api/wordpress/publish', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Basic ${credentials}`,
         },
         body: JSON.stringify({
+          siteUrl: normalizedSiteUrl,
+          username: activeUsername,
+          appPassword: activeAppPassword,
           title,
           content,
           status,
@@ -104,11 +103,17 @@ export default function PublishPage() {
         const message =
           typeof data === "object" &&
           data !== null &&
-          "message" in data &&
-          typeof (data as { message?: unknown }).message === "string"
-            ? (data as { message: string }).message
+          "error" in data &&
+          typeof (data as { error?: unknown }).error === "string"
+            ? (data as { error: string }).error
             : "Failed to publish to WordPress.";
-        throw new Error(message);
+        const details =
+          typeof data === "object" &&
+          data !== null &&
+          "details" in data && (data as { details?: unknown }).details
+            ? ` ${JSON.stringify((data as { details: unknown }).details)}`
+            : "";
+        throw new Error(`${message}${details}`);
       }
 
       setResult({
@@ -164,13 +169,14 @@ export default function PublishPage() {
           </label>
 
           <label>
-            WordPress App Password
+            WordPress Application Password
             <input
               type="password"
               value={appPassword}
               onChange={(event) => setAppPassword(event.target.value)}
               required
             />
+            <small>Use a WordPress application password, not your normal admin login password.</small>
           </label>
 
           <label>
