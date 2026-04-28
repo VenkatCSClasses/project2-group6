@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type SourceEntry } from './IntegratedLayout';
+import { formatMlaCitation, type SourceEntry } from './sourceTracking';
 
 // Added a helper type for clarity ) 
 type SourceType = 'website' | 'book' | 'film' | 'article' | 'interview';
@@ -102,18 +102,7 @@ export default function Sources({ sourceList, onUpdateSource }: SourcesProps) {
                 /* --- VIEW MODE --- */
                 <div className="citation-item">
                   {/*  Updated Preview Text to handle various types*/}
-                  <p className="mla-text">
-                    {src.author && `${src.author}. `} 
-                    {src.type === 'book' ? <i>{src.title}. </i> : `"${src.title}." `}
-                    {src.website && <i>{src.website}</i>}
-                    {src.publisher && ` ${src.publisher}, `}
-                    {src.year && ` ${src.year}. `}
-                    {src.url && ` ${src.url}. `}
-                    {src.type === 'interview' ? `Personal interview. ` : `Accessed `}
-                    {src.dateAccessed}.
-                    {/* update preview to show inline citation if available, otherwise default to (Author, Year) or (Author) or (Unknown Source) based on what info is present */}
-                    {src.inlineCitation ? ` (${src.inlineCitation})` : src.author ? ` (${src.author.split(',')[0]}${src.year ? `, ${src.year}` : ''})` : ' (Author, Year)'}
-                  </p>
+                  <p className="mla-text">{formatMlaCitation(src)}</p>
                   <button 
                     className="edit-trigger" 
                     onClick={() => setEditingId(src.id)}

@@ -683,3 +683,10 @@ router.post("/documents/:id/comments/:commentId/resolve", (req, res) => {
 });
 
 module.exports = router;
+module.exports.createInviteState = createInviteState;
+module.exports.normalizeSharedUsers = normalizeSharedUsers;
+module.exports.createDocumentRecord = createDocumentRecord;
+module.exports.normalizeInvite = normalizeInvite;
+module.exports.normalizeRecord = normalizeRecord;
+module.exports.buildPresence = buildPresence;
+module.exports.syncUserDocumentLists = syncUserDocumentLists;

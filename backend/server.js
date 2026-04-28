@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
+const { authenticateUser, registerUser } = require("./authHelpers");
 
 const app = express();
 
@@ -17,16 +18,12 @@ app.post("/register", (req, res) => {
   const { username, password } = req.body;
   const data = JSON.parse(fs.readFileSync(FILE, "utf-8"));
 
-  if (data.users.some((entry) => entry.username === username)) {
-    return res.status(400).json({ error: "User already exists" });
+  const registration = registerUser(data.users, username, password);
+  if (!registration.ok) {
+    return res.status(registration.status).json({ error: registration.error });
   }
 
-  data.users.push({
-    username,
-    password,
-    documents: { writer: [], editor: [] },
-  });
-
+  data.users.push(registration.user);
   fs.writeFileSync(FILE, JSON.stringify(data, null, 2));
   res.json({ message: "User registered" });
 });
@@ -34,14 +31,10 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   const data = JSON.parse(fs.readFileSync(FILE, "utf-8"));
-  const user = data.users.find((entry) => entry.username === username);
 
-  if (!user) {
-    return res.status(400).json({ error: "User not found" });
-  }
-
-  if (user.password !== password) {
-    return res.status(400).json({ error: "Incorrect password" });
+  const authentication = authenticateUser(data.users, username, password);
+  if (!authentication.ok) {
+    return res.status(authentication.status).json({ error: authentication.error });
   }
 
   res.json({ message: "Login successful" });

@@ -44,6 +44,7 @@ import type {
 import { getDocument, saveDocument, updateSharedViewers } from "./editor/documents/documentApi";
 import type { EditorDocument } from "./editor/documents/types";
 import { getPublishDraftStorageKey } from "./publish";
+import { buildSourceEntryFromUrl, type SourceEntry } from "./sourceTracking";
 import {
   claimSession,
   getPresence,
@@ -112,23 +113,6 @@ function MissingAccess({ message }: { message: string }) {
     </main>
   );
 }
-
-// Define the SourceEntry structure for MLA data
-export type SourceEntry = {
-  inlineCitation: string;
-  studio: string;
-  volume: string;
-  journal: string;
-  year: string;
-  publisher: string;
-  type: string;
-  id: string;
-  url: string;
-  author?: string;
-  title: string;
-  website: string;
-  dateAccessed: string;
-};
 
 // Floating block actions (plus button, drag handle)
 function MyFloatingBlockActions() {
@@ -531,45 +515,7 @@ export default function IntegratedLayout() {
 
   // Source management
   const addSource = (data: { url: string }) => {
-    let guessedTitle = "Untitled Page";
-    let guessedWebsite = "Unknown Source";
-
-    try {
-      const urlObj = new URL(data.url);
-      const domainParts = urlObj.hostname.replace("www.", "").split(".");
-      const rawSite = domainParts[domainParts.length - 2] || "Source";
-      guessedWebsite = rawSite.charAt(0).toUpperCase() + rawSite.slice(1);
-
-      const pathParts = urlObj.pathname.split("/").filter((p) => p !== "");
-      if (pathParts.length > 0) {
-        const lastPart = pathParts[pathParts.length - 1];
-        guessedTitle = decodeURIComponent(lastPart).replace(/-|_/g, " ");
-        guessedTitle = guessedTitle.charAt(0).toUpperCase() + guessedTitle.slice(1);
-      }
-    } catch (e) {
-      console.error("Parsing failed", e);
-    }
-
-    const newSource: SourceEntry = {
-      id: Math.random().toString(36).substr(2, 9),
-      url: data.url,
-      title: guessedTitle,
-      website: guessedWebsite,
-      author: "",
-      dateAccessed: new Date().toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      }),
-      inlineCitation: "",
-      studio: "",
-      volume: "",
-      journal: "",
-      year: "",
-      publisher: "",
-      type: "",
-    };
-    setSources((prev) => [newSource, ...prev]);
+    setSources((prev) => [buildSourceEntryFromUrl(data.url), ...prev]);
   };
 
   const updateSource = (updated: SourceEntry) => {
