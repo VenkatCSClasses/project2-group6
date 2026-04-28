@@ -74,6 +74,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<"writer" | "editor">("writer");
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const username = localStorage.getItem("username") ?? "";
 
@@ -118,6 +119,7 @@ export default function Dashboard() {
   };
 
   const docs = activeTab === "writer" ? writerDocs : editorDocs;
+  const filteredDocs = docs.filter((d) => d.title.toLowerCase().includes(query.trim().toLowerCase()));
 
   return (
     <div style={{ marginBottom: "20px" }}>
@@ -142,11 +144,21 @@ export default function Dashboard() {
           ) : null}
         </div>
 
-        {docs.length === 0 ? (
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+          <input
+            aria-label="Search documents"
+            placeholder="Search documents by name..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            style={searchInputStyle}
+          />
+        </div>
+
+        {filteredDocs.length === 0 ? (
           <p style={{ textAlign: "center" }}>No documents yet.</p>
         ) : (
           <div style={docsContainerStyle}>
-            {[...docs]
+            {[...filteredDocs]
               .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
               .map((doc) => (
                 <div
@@ -281,6 +293,16 @@ const plusButtonStyle: React.CSSProperties = {
   alignItems: "center",
   justifyContent: "center",
   lineHeight: "40px",
+};
+
+const searchInputStyle: React.CSSProperties = {
+  width: "560px",
+  maxWidth: "80%",
+  padding: "8px 12px",
+  borderRadius: "12px",
+  border: "1px solid #cbd5e1",
+  fontSize: "16px",
+  boxSizing: "border-box",
 };
 
 const renameSaveStyle: React.CSSProperties = {
