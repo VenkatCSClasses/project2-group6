@@ -7,19 +7,16 @@ https://docs.google.com/document/d/1ovA4SQM1nDByxMvQ0C5xEs1JmpQgkh4uJZZ-DU14AzU/
 
 ## Pitch
 ### Overview
-Our project is a writing environment designed to bring bespoke features to a journalist and their editor. Rather than adapting basic word processors to fit their needs, newsrooms can use this web app to compose stories, keep track of sources across stories, organize quotes and media, and conduct grammar/style checks on their story.
-### Key features and capabilities
-* Quote/source management
-* Style checking
-* Editor and proofreader view
-* Story structure tracking
-* Headline checking
-* Direct-to-CMS publishing
-* Photo and caption management
-* Easy embeds from internet
 
-### Benefits
-Our web app provides an independent, bespoke way for journalists to do their best work. Screenwriters and playwrights have Final Draft — journalists could use our platform. It can be tailored to fit the unique style of a certain newsroom (e.g. *The Ithacan* has a unique set of grammatical rules) and can be used to report on a subject across multiple stories with the same sources.
+
+This project delivers a collaborative, web-based writing environment tailored specifically for journalists and editors, streamlining the process of composing, sourcing, and publishing stories. The application supports two primary user roles: writers and editors. Writers can create and manage documents from their dashboard, while editors are invited collaborators with read-only access and commenting capabilities.
+
+The platform integrates a built-in research and citation system. Users can search or paste links directly into the sidebar, automatically generating editable citations categorized by source type (e.g., website, book, interview). An embedded browser allows in-app viewing of non-commercial sources, while commercial links open externally. Writers can organize sources, quotes, and media efficiently within each document.
+
+The rich text editor includes formatting tools, image insertion, commenting, and document sharing. A real-time collaboration panel displays active users, roles, and access modes. Only document owners can edit and publish content, with direct publishing supported via WordPress integration.
+
+Overall, the app centralizes writing, research, collaboration, and publishing into a single workflow, reducing friction for newsroom teams and enabling more organized, transparent, and efficient content production.
+
 
 ## Class Diagram
 [![Class Diagram](ClassDiagram.png)]
