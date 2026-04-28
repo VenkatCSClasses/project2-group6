@@ -102,3 +102,107 @@ Displays: Active users, User roles (owner/editor) and Access mode (edit/read)
 6.Invite editors to collaborate
 7.Review comments and finalize content
 8.Publish to WordPress
+
+## Testing
+
+## TestingOverview
+
+This application focuses on component-level validation and end-to-end system workflows rather than traditional unit testing. Because the platform is highly interactive (rich text editor, role-based permissions, embedded browsing, and collaboration), testing emphasizes user behavior, UI state changes, and multi-step processes.
+
+## Component Testing
+1. Authentication Component 
+Test : Secure and Consistent User Access
+
+User signs up with valid email/password : account created and stored in JSON
+User logs in with correct credentials : redirected to dashboard
+User logs in with incorrect credentials: access denied, error “Incorrect password” and “User not found”
+Empty input fields: Error “Please fill in all fields”
+Duplicate account creation: Error user already exists
+
+2. Dashboard Component: Validate document organization and role separation
+Test : Document appears in correct sections
+
+User sees both a Writer and Editor section
+The Writer section contains only documents a user owns
+The Editor section contains only documents a user is added as an editor on
+“+” button creates a new document
+
+
+3. Document Editor Component
+Tests: Ensure all writing and formatting tools function correctly.
+
+Apply bold, italics, underline:  formatting reflected immediately
+Switch between Normal, Heading 1, Heading 2
+Alignment changes (left, center, right) update correctly
+Bullet and numbered lists render properly
+Editing controls : undo reverse last action and redo restores undone action
+Media Insertion: an image is inserted to the document.
+
+4. Citation & Sources Component
+Test: Automatic citation generation and customization
+Pasting a link auto-generates a citation
+Citation appears in the Sources section
+User can edit citation fields
+Switching source type updates available fields dynamically.
+You can switch types after editing
+
+5.Integrated Browser Component
+Test: Ensure correct handling of internal vs external browsing.
+
+Non-commercial link (e.g., Wikipedia) loads inside the app
+Commercial link opens in a new browser tab
+
+6. Collaboration Component
+Test: Role based permissions and visibility
+
+Writer has full edit access
+Editor is restricted to read-only mode
+Editor can add comments but cannot modify content
+Publish button disabled for editors
+The Collaboration panel displays all active users, roles and reflects access mode
+
+7. Commenting System
+Tests: Validate comment system
+
+If a user adds a comment it appears in document
+Comments can be resolved
+Multiple comments can exist simultaneously
+Comments can be resolved but still appear in review queue
+
+8. Publishing Component
+Test :Confirm correct publishing workflow
+
+Writer clicks publish:  redirected to publish page
+Editor clicks publish:  no action / disabled
+Document content transfers correctly
+
+
+## System Testing
+## End-to-End Writer Workflow
+
+User signs up or  logs in
+Creates a document
+Writes and formats content
+Inserts images
+Adds sources via search bar
+Generates and edits citations
+Invites an editor
+Publishes document successfully
+
+## Editor Collaboration Workflow
+Editor receives access
+Document can be seen in the user’s Editor’s section
+Opens document
+Views content in read-only mode
+Adds comments
+Editor cannot edit text or publish
+
+## Multi-User Interaction Workflow
+Writer and editor can access the same document at the same time
+Both appear in collaboration panel
+Writer edits content
+Editor observes updates and comments
+
+
+
+

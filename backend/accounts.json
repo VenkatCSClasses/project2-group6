@@ -93,7 +93,13 @@
             "updatedAt": "2026-04-28T14:58:13.570Z"
           }
         ],
-        "editor": []
+        "editor": [
+          {
+            "id": "19e82386-61a8-4114-9067-07753799e5ba",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-28T22:34:54.074Z"
+          }
+        ]
       }
     },
     {
@@ -105,6 +111,20 @@
             "id": "2e0cfaf0-2b3d-4912-acb7-d81ee8d7a48a",
             "title": "Untitled Document",
             "updatedAt": "2026-04-28T22:00:16.938Z"
+          }
+        ],
+        "editor": []
+      }
+    },
+    {
+      "username": "faith",
+      "password": "1234",
+      "documents": {
+        "writer": [
+          {
+            "id": "19e82386-61a8-4114-9067-07753799e5ba",
+            "title": "Untitled Document",
+            "updatedAt": "2026-04-28T22:34:54.074Z"
           }
         ],
         "editor": []
@@ -516,12 +536,7 @@
       "comments": [],
       "updatedAt": "2026-04-22T03:29:24.239Z",
       "sessions": {
-        "owner": {
-          "sessionId": "81110cdf-dd41-4480-859b-2441a79e4b60",
-          "username": "suryash",
-          "displayName": "suryash",
-          "lastSeenAt": "2026-04-28T12:51:03.673Z"
-        },
+        "owner": null,
         "viewers": []
       }
     },
@@ -758,15 +773,33 @@
           }
         }
       },
-      "comments": [],
+      "comments": [
+        {
+          "id": "1a981724-7391-4966-a26c-f19adabb4443",
+          "documentId": "b2335452-53ec-4da2-95a3-0c77a1265416",
+          "text": "2",
+          "authorId": "7666f1ad-3d2e-4930-852c-3a5af4164e3d",
+          "authorName": "suryash",
+          "authorRole": "owner",
+          "resolved": true,
+          "createdAt": "2026-04-28T22:25:17.100Z",
+          "commentAnchor": null
+        },
+        {
+          "id": "536c5678-59c4-4000-a7f0-b8f481d33d59",
+          "documentId": "b2335452-53ec-4da2-95a3-0c77a1265416",
+          "text": "1",
+          "authorId": "7666f1ad-3d2e-4930-852c-3a5af4164e3d",
+          "authorName": "suryash",
+          "authorRole": "owner",
+          "resolved": true,
+          "createdAt": "2026-04-28T22:25:14.890Z",
+          "commentAnchor": null
+        }
+      ],
       "updatedAt": "2026-04-28T14:58:13.570Z",
       "sessions": {
-        "owner": {
-          "sessionId": "6062b297-7dde-4f90-8686-e7ce61e49c80",
-          "username": "suryash",
-          "displayName": "suryash",
-          "lastSeenAt": "2026-04-28T15:06:12.935Z"
-        },
+        "owner": null,
         "viewers": []
       }
     },
@@ -851,11 +884,136 @@
       "comments": [],
       "updatedAt": "2026-04-28T22:00:16.938Z",
       "sessions": {
+        "owner": null,
+        "viewers": []
+      }
+    },
+    "19e82386-61a8-4114-9067-07753799e5ba": {
+      "id": "19e82386-61a8-4114-9067-07753799e5ba",
+      "title": "Untitled Document",
+      "ownerUsername": "faith",
+      "sharedWith": [
+        "suryash"
+      ],
+      "invite": {
+        "token": null,
+        "createdAt": null,
+        "lastUsedAt": null
+      },
+      "content": {
+        "88766c82-0fdd-45f0-8f98-edc1a73abec5": {
+          "id": "88766c82-0fdd-45f0-8f98-edc1a73abec5",
+          "value": [
+            {
+              "id": "921f6aa4-a9af-42d7-ab36-bd490216232e",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "Test"
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ],
+          "type": "HeadingOne",
+          "meta": {
+            "order": 0,
+            "depth": 0
+          }
+        },
+        "e9ee1b52-0fc1-4a70-a432-97dc58599611": {
+          "id": "e9ee1b52-0fc1-4a70-a432-97dc58599611",
+          "type": "HeadingOne",
+          "meta": {
+            "order": 3,
+            "depth": 0
+          },
+          "value": [
+            {
+              "id": "921f6aa4-a9af-42d7-ab36-bd490216232e",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": ""
+                }
+              ],
+              "props": {
+                "nodeType": "block"
+              }
+            }
+          ]
+        },
+        "4bea901b-7d45-441f-8289-450ca4270a9f": {
+          "id": "4bea901b-7d45-441f-8289-450ca4270a9f",
+          "type": "Paragraph",
+          "value": [
+            {
+              "id": "a2154af9-8466-4eeb-8909-887656e91c1e",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": "I want to test if multiple people can be on a document at the same time"
+                }
+              ]
+            }
+          ],
+          "meta": {
+            "align": "left",
+            "depth": 0,
+            "order": 1
+          }
+        },
+        "1b82e613-92a8-4aee-8c21-9fdf18b427bb": {
+          "id": "1b82e613-92a8-4aee-8c21-9fdf18b427bb",
+          "type": "Paragraph",
+          "value": [
+            {
+              "id": "acb4e567-50f5-45dc-8d8c-351136d9f9e7",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "meta": {
+            "align": "left",
+            "depth": 0,
+            "order": 2
+          }
+        },
+        "41cfe750-c74d-44e0-a0f5-2fc854a6af94": {
+          "id": "41cfe750-c74d-44e0-a0f5-2fc854a6af94",
+          "type": "Paragraph",
+          "value": [
+            {
+              "id": "c8c4c54c-82d6-43cf-8cb4-32d95c0c0ae3",
+              "type": "paragraph",
+              "children": [
+                {
+                  "text": ""
+                }
+              ]
+            }
+          ],
+          "meta": {
+            "align": "left",
+            "depth": 0,
+            "order": 4
+          }
+        }
+      },
+      "comments": [],
+      "updatedAt": "2026-04-28T22:34:54.074Z",
+      "sessions": {
         "owner": {
-          "sessionId": "12724a88-91c1-41be-bcb2-069e572d133e",
-          "username": "George",
-          "displayName": "George",
-          "lastSeenAt": "2026-04-28T22:03:22.403Z"
+          "sessionId": "a2211531-199a-446d-a7a7-2e138518ec42",
+          "username": "faith",
+          "displayName": "faith",
+          "lastSeenAt": "2026-04-28T22:37:23.337Z"
         },
         "viewers": []
       }
