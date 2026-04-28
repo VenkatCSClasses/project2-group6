@@ -17,6 +17,15 @@ The rich text editor includes formatting tools, image insertion, commenting, and
 
 Overall, the app centralizes writing, research, collaboration, and publishing into a single workflow, reducing friction for newsroom teams and enabling more organized, transparent, and efficient content production.
 
+## Key Features Summary
+Role-based access control (writer vs editor)
+Built-in research and browsing tools
+Automatic citation generation and editing
+Rich text editing with formatting tools
+Commenting and collaboration system
+Real-time document access tracking
+WordPress publishing integration
+
 
 ## Class Diagram
 [![Class Diagram](ClassDiagram.png)]
