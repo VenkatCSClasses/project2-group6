@@ -1,3 +1,4 @@
+# AI Use: All documents were created with the help of Gemini and ChatGPT
 
 ## Overview
 This project is a web-based writing environment designed specifically for journalists and editors. It combines document creation, research, citation management, and collaboration into a single platform. Unlike traditional word processors, this application is tailored to newsroom workflows, allowing users to organize sources, track references, and collaborate efficiently.
