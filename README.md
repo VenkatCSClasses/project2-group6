@@ -24,7 +24,7 @@ WordPress publishing integration
 
 
 ## Class Diagram
-[![Class Diagram](ClassDiagram.png)]
+[![Class Diagram](ClassDiagramUpdated.png)]
 
 
 ## Use Case Diagram
