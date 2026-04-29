@@ -35,6 +35,12 @@ WordPress publishing integration
 ## Sequence Diagram
 <img width="5370" height="5140" alt="Writer to Website-2026-04-09-144210" src="https://github.com/user-attachments/assets/16055f12-e93e-4e28-be79-755bbb224c46" />
 
+Share A Document between a Writer and Editor:
+<img width="857" height="847" alt="Screenshot 2026-04-28 at 8 46 33 PM" src="https://github.com/user-attachments/assets/13ddb05e-2ba1-4ddf-af7e-0d0e568fc907" />
+
+Use In-App Browser with Citation Formatter:
+<img width="1006" height="691" alt="Screenshot 2026-04-28 at 9 31 34 PM" src="https://github.com/user-attachments/assets/fc94e53b-6793-4efd-a5f1-06fced85116c" />
+
 ## State Diagram 
 ![State Diagram](state-diagram.png)
 
